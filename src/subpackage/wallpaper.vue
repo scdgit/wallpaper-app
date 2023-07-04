@@ -34,7 +34,7 @@ import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import MyImage from '@/components/MyImage.vue'
 import { HOST } from '@/config'
 import type { ImgType } from '@/type'
-import { encryptData, decryptData } from '@/utils'
+import { encryptData, decryptData, saveImgToAlbum } from '@/utils'
 
 let img = ref<ImgType>() // 图片对象
 let deviceType = ref<string>('') // 当前设备类型
@@ -105,11 +105,11 @@ const shareWeb = () => {
 }
 
 // 点击收藏
-let flag = false // 节流阀
+let flag1 = false // 节流阀
 const toCollect = () => {
-   if (flag) return
+   if (flag1) return
    let favorites = [], msg:string
-   flag = true
+   flag1 = true
    favorites = uni.getStorageSync('favorites') ? decryptData(uni.getStorageSync('favorites')) : []
    if (!isCollect.value) { // 点击收藏
       favorites.push(img.value)
@@ -127,22 +127,14 @@ const toCollect = () => {
       uni.setStorageSync('favorites', encryptData(favorites))
    }
    setTimeout(() => {
-      flag = false
+      flag1 = false
       uni.showToast({title: msg, icon: 'none'})
    }, 300)
 }
 
 // 点击下载
-const toDownload = (img: ImgType) => {
-   uni.saveFile({
-      tempFilePath: img.url,
-      success: () => {
-         uni.showToast({title: '已保存到设备中'})
-      },
-      fail: () => {
-         uni.showToast({title: '保存失败', icon: 'error'})
-      }
-   })
+const toDownload = async (img: ImgType) => {
+   saveImgToAlbum(img.url)
 }
 </script>
 

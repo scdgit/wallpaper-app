@@ -31,4 +31,14 @@ export default defineConfig({
       '@img': path.resolve(__dirname, 'src/static/images'),
     },
   },
+  // 配置代理
+  server: {
+   proxy: {
+      '/imgapi': {
+         target: 'http://x006.b.u8s.ru',
+         changeOrigin: true,
+         rewrite: (path) => path.replace(/^\/imgapi/, '')
+      }
+   }
+  }
 })

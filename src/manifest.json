@@ -72,5 +72,12 @@
     "uniStatistics": {  
         "enable": false
     },
-    "vueVersion" : "3"
+    "h5": {},
+    "vueVersion" : "3",
+    "networkTimeout": {
+      "request": 8000, // 请求超时时间，单位为毫秒
+      "connectSocket": 8000, // 建立连接超时时间，单位为毫秒
+      "uploadFile": 8000, // 上传文件超时时间，单位为毫秒
+      "downloadFile": 8000 // 下载文件超时时间，单位为毫秒
+    }
 }
