@@ -1,0 +1,84 @@
+{
+	"pages": [
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "分类列表"
+			}
+		},
+		{
+			"path": "pages/more/more",
+			"style": {
+				"navigationBarTitleText": "推荐"
+			}
+		},
+		{
+			"path": "pages/personal/personal",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "色彩墙",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#F8F8F8",
+		"app-plus": {
+			"animationType": "slide-in-right",
+			"animationDuration": "200"
+		}
+	},
+	"tabBar": {
+		"color": "#8a8a8a",
+		"selectedColor": "#3d3c3c",
+		"backgroundColor": "#fff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/home-d.png",
+				"selectedIconPath": "static/home-l.png"
+			},
+			{
+				"pagePath": "pages/more/more",
+				"text": "推荐",
+				"iconPath": "static/hot-d.png",
+				"selectedIconPath": "static/hot-l.png"
+			},
+			{
+				"pagePath": "pages/personal/personal",
+				"text": "我的",
+				"iconPath": "static/me-d.png",
+				"selectedIconPath": "static/me-l.png"
+			}
+		]
+	},
+	"uniIdRouter": {},
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
+	"subPackages": [
+		{
+			"root": "subpackage",
+			"pages": [
+				{
+					"path": "wallpaper",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				}
+			]
+		}
+	]
+}

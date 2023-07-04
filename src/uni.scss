@@ -1,0 +1,18 @@
+:root {
+   --bg-color: #F5F7F8;
+   --text-color: #000;
+ }
+
+ // 获取一个随机颜色
+ @function random-color() {
+   $letters: '0123456789ABCDEF';
+   $color: '#';
+ 
+   @for $i from 1 through 6 {
+     $random: random(length($letters));
+     $letter: nth($letters, $random);
+     $color: $color + $letter;
+   }
+ 
+   @return $color;
+ }

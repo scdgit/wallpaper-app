@@ -1,0 +1,8 @@
+node_modules
+dist
+*.md
+*.woff
+*.ttf
+*.json
+.vscode
+.idea
