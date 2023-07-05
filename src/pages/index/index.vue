@@ -28,9 +28,9 @@ import type { BannerType, columnType } from '@/type'
 import { JSON_URL } from '@/config'
 import { decryptData } from '@/utils'
 
-let kwd = ref<string>()
-let banner = ref<Array<BannerType>>()
-let column = ref<Array<columnType>>()
+let kwd = ref<string>() // 搜索框关键字
+let banner = ref<Array<BannerType>>() // 轮播图数据
+let column = ref<Array<columnType>>() // 分类列表
 
 //#ifdef MP-WEIXIN
 uni.showShareMenu()

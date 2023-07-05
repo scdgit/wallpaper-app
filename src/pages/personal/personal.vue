@@ -19,7 +19,7 @@
 				<view class="detail-t">
 					<text class="text-1">剩余下载次数</text>
 					<view class="add">去增加
-						<u-icon name="play-right-fill" size="12" color="#fff" />
+                  <uni-icons type="fire" size="30rpx" color="#fff" style="margin-left: 2rpx;"/>
 					</view>
 				</view>
 				<view class="count">9999</view>
@@ -29,7 +29,7 @@
 		<!-- 扩展功能 -->
 		<view class="extend">
 			<uni-list>
-				<uni-list-item title="📙&nbsp;我的收藏" showArrow clickable />
+				<uni-list-item title="📙&nbsp;我的收藏" showArrow clickable @click="goTo('/subpackage/favorites')"/>
 				<uni-list-item title="️🖨️&nbsp;我的下载" showArrow clickable />
 				<uni-list-item title="⚙️️&nbsp;主题设置" showArrow clickable />
 				<uni-list-item title="🛰️&nbsp;清除数据" showArrow clickable @click="loginOut"/>
@@ -86,6 +86,10 @@ const editNickname = () => {
 		}, 1000)
 	})
 	isEdit.value = false
+}
+// 跳转路由
+const goTo = (fullpath: string) => {
+   uni.navigateTo({url: fullpath})
 }
 // 退出登陆
 const loginOut = () => {
@@ -247,5 +251,9 @@ const loginOut = () => {
 		padding: 0 28rpx;
 		box-sizing: border-box;
 		font-size: 24rpx;
+      .add {
+         display: flex;
+         align-items: center;
+      }
 	}
 }</style>

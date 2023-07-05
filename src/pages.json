@@ -27,9 +27,9 @@
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
+		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "色彩墙",
-		"navigationBarBackgroundColor": "#fff",
+		"navigationBarBackgroundColor": "#000",
 		"backgroundColor": "#F8F8F8",
 		"app-plus": {
 			"animationType": "slide-in-right",
@@ -75,7 +75,16 @@
 				{
 					"path": "wallpaper",
 					"style": {
+                  "navigationBarTitleText": "图片预览",
 						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "favorites",
+					"style": {
+						"navigationBarTitleText": "我的收藏",
+                  "navigationStyle": "default",
+                  "backgroundColor": "#000"
 					}
 				}
 			]

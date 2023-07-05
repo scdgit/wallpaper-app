@@ -6,23 +6,23 @@
       </view>
       <view class="tool">
          <view class="tool-item" @click="goBack">
-            <uni-icons type="arrow-left"/><!-- 返回 -->
+            <uni-icons type="arrow-left" /><!-- 返回 -->
          </view>
          <view class="tool-item" @click="toCollect">
-            <uni-icons :type="!isCollect?`star`:`star-filled`"/><!-- 收藏 -->
+            <uni-icons :type="!isCollect ? `star` : `star-filled`" /><!-- 收藏 -->
          </view>
          <view class="tool-item">
-            <uni-icons type="download" @click="toDownload(img)"/><!-- 下载 -->
+            <uni-icons type="download" @click="toDownload(img)" /><!-- 下载 -->
          </view>
          <!-- 分享 -->
          <view v-if="deviceType === 'app'" class="tool-item" @click="shareByApp">
-            <uni-icons type="redo"/>
+            <uni-icons type="redo" />
          </view>
          <view v-else-if="deviceType === 'web'" class="tool-item" @click="shareWeb">
-            <uni-icons type="redo"/>
+            <uni-icons type="redo" />
          </view>
          <label v-else class="tool-item" for="share-btn">
-            <uni-icons type="redo"/>
+            <uni-icons type="redo" />
          </label>
       </view>
       <button id="share-btn" open-type="share" style="display: none;" />
@@ -34,19 +34,21 @@ import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import MyImage from '@/components/MyImage.vue'
 import { HOST } from '@/config'
 import type { ImgType } from '@/type'
-import { encryptData, decryptData, saveImgToAlbum } from '@/utils'
+import { decryptData, saveImgToAlbum } from '@/utils'
+import { useFavorites, updateFavorites } from '@/hooks'
 
 let img = ref<ImgType>() // 图片对象
 let deviceType = ref<string>('') // 当前设备类型
 let isCollect = ref<boolean>(false) // 是否收藏
+let pre_path = ref<string>('') // 跳转前的页面
 
 onLoad((options: any) => {
    uni.showLoading({ title: '加载中...' })
-   img.value = (decryptData(options.img))
+   img.value = decryptData(options.img)
+   pre_path.value = options.pre_path
    deviceType.value = uni.getStorageSync('deviceType')
    // 判断是否已收藏
-   let favorites = uni.getStorageSync('favorites') ? decryptData(uni.getStorageSync('favorites')) : []
-   favorites.forEach((element: ImgType) => {
+   useFavorites.forEach((element: ImgType) => {
       if (element.file === img.value.file) return isCollect.value = true
    });
 })
@@ -59,12 +61,13 @@ const imgLoad = () => {
 }
 // 返回按钮
 const goBack = () => {
-   uni.navigateBack({
-      delta: 2,
-      fail: () => {
-         uni.switchTab({ url: '/pages/index/index' })
-      }
-   })
+   if (pre_path.value == 'undefined') {
+      const page = getCurrentPages()
+      if (page.length > 1) uni.navigateBack({ delta: 2 })
+      else uni.switchTab({ url: '/pages/index/index' })
+   } else {
+      uni.redirectTo({ url: pre_path.value })
+   }
 }
 
 // 非app生效的分享功能
@@ -108,27 +111,20 @@ const shareWeb = () => {
 let flag1 = false // 节流阀
 const toCollect = () => {
    if (flag1) return
-   let favorites = [], msg:string
+   let msg: string
    flag1 = true
-   favorites = uni.getStorageSync('favorites') ? decryptData(uni.getStorageSync('favorites')) : []
    if (!isCollect.value) { // 点击收藏
-      favorites.push(img.value)
+      updateFavorites('add', img.value)
       msg = '已收藏'
    } else { // 取消收藏
-      favorites.forEach((item, index) => {
-         if (item.url === img.value.url) return favorites.splice(index, 1)
-      })
+      updateFavorites('del', img.value)
       msg = '取消了收藏'
    }
    isCollect.value = !isCollect.value
-   if (favorites.length === 0) {
-      uni.removeStorage({key:'favorites'})
-   } else {
-      uni.setStorageSync('favorites', encryptData(favorites))
-   }
    setTimeout(() => {
       flag1 = false
-      uni.showToast({title: msg, icon: 'none'})
+      uni.showToast({ title: msg, icon: 'none' })
+      // 刷新收藏夹
    }, 300)
 }
 
@@ -139,7 +135,6 @@ const toDownload = async (img: ImgType) => {
 </script>
 
 <style scoped lang="scss">
-
 .wallpaper {
    width: 100%;
    min-height: 100vh;
@@ -166,11 +161,13 @@ const toDownload = async (img: ImgType) => {
       justify-content: space-around;
       border-radius: 60rpx;
       border: 1px solid rgba(255, 255, 255, .3);
+
       .tool-item {
          display: flex;
          flex-direction: column;
          color: #fff;
          font-size: 24rpx;
+
          ::v-deep .uni-icons {
             font-size: 46rpx !important;
             color: rgba(255, 255, 255, .9) !important;

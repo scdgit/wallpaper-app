@@ -13,7 +13,7 @@ body,html { font-size: 16px; }
 // h5页面隐藏顶部导航条
 /* #ifdef H5 */ 
 uni-page-head {
-  display: none !important;
+  display: none;
 }
 /* #endif */
 </style>
