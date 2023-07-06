@@ -8,3 +8,5 @@ export const KEY = 'scd-key'
 export const HOST = 'http://192.168.101.7:5173'
 // 图片资源代理地址
 export const WEB_IMG_API = '/imgapi'
+// 使用说明文档地址
+export const USE_MANUAL = '/imgapi/img/doc/instructions.pdf'

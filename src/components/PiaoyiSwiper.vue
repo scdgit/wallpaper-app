@@ -1,11 +1,11 @@
 <template>
-	<view class="uni-margin-wrap" :style="{ borderRadius: round + 'rpx' }" @click="_click">
+	<view class="uni-margin-wrap" :style="{ borderRadius: round + 'rpx' }">
 		<swiper class="swiper" circular :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval"
 			:duration="duration" :current="current" indicator-active-color="rgba(255,255,255,.6)" @change="change"
 			@animationfinish="animationfinish">
 			<swiper-item v-for="(item, index) of bannerList" :key="index">
 				<view class="swiper-item uni-bg-red">
-					<image class="image" :src="`${BASE_URL}/banner/${item.file}`" mode="aspectFill" :fade-show="true" :lazy-load="true"></image>
+					<image class="image" :src="`${BASE_URL}/banner/${item.file}`" mode="aspectFill" :fade-show="true" :lazy-load="true" @click="goToPreview(item)"/>
 				</view>
 			</swiper-item>
 		</swiper>
@@ -14,6 +14,8 @@
 
 <script setup lang="ts">
 import { BASE_URL } from '@/config'
+import { ImgType } from '@/type'
+import { encryptData } from '@/utils'
 let current = ref<number>(0)
 const props = defineProps({
 	round: {
@@ -54,15 +56,12 @@ const props = defineProps({
 		type: Function,
 		default: () => { }
 	},
-	// 轮播诶被点击的时候
-	click: {
-		type: Function,
-		default: () => { }
-	}
 })
 const bannerList: any = toRef(props, 'list')
-const _click = () => {
-	props.click(props.list[current.value])
+const goToPreview = (img: ImgType) => {
+   uni.navigateTo({
+      url: `/subpackage/wallpaper?img=${encryptData(img)}`
+   })
 }
 </script>
 

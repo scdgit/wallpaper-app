@@ -24,3 +24,30 @@ export const getJsonColumnData = (file: string): Promise<{title: string, list: A
 		})
 	})
 }
+
+/**
+ * 加载指定文件夹下的图片资源
+ * @param room 图片仓库对应的一级目录
+ * @param start 开始加载的图片索引
+ * @param num 需要加载的数量
+ * @returns [{$room:[base64]}] 加载后的返回数据
+ */
+export function loadJsonData(room: string): Promise<Array<ImgType>> {
+   return new Promise((resolve, reject) => {
+      uni.request({
+         url: `${JSON_URL}/main.json`,
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         success(result: any) {
+            result.data[room].forEach((element: ImgType )=> {
+               element.url = `${BASE_URL}/${room}/${element.file}`
+            });
+            resolve(result.data[room])
+         },
+         fail(err) {
+            reject(err)
+         },
+      })
+   })
+}

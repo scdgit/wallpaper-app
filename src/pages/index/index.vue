@@ -3,7 +3,7 @@
 		<uni-search-bar placeholder="请输入关键字" @confirm="searchClick" @input="(e:string) => kwd = e.trim()" @cancel="() => kwd = ``" />
 		<!-- 轮播图 -->
 		<view class="swiper-box">
-			<PiaoyiSwiper :list="banner" :round="10" @click="clickBanner" />
+			<PiaoyiSwiper :list="banner" :round="10" />
 		</view>
 		<!-- 主体内容区域 -->
 		<view class="main">
@@ -35,11 +35,6 @@ let column = ref<Array<columnType>>() // 分类列表
 //#ifdef MP-WEIXIN
 uni.showShareMenu()
 //#endif
-
-// 点击轮播图跳转页面
-const clickBanner = (target: BannerType) => {
-	console.log(target)
-}
 onMounted(() => {
 	// 解密
 	banner.value = decryptData(uni.getStorageSync('banner'))

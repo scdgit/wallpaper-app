@@ -61,30 +61,6 @@ export function chooseImage(sourceType: string) {
 }
 
 /**
- * 加载指定文件夹下的图片资源
- * @param room 图片仓库对应的一级目录
- * @param start 开始加载的图片索引
- * @param num 需要加载的数量
- * @returns [{$room:[base64]}] 加载后的返回数据
- */
-export function loadJsonData(room: string): Promise<[string]> {
-   return new Promise((resolve, reject) => {
-      uni.request({
-         url: `${JSON_URL}/main.json`,
-         headers: {
-            'Content-Type': 'application/json'
-         },
-         success(result: any) {
-            resolve(result.data[room])
-         },
-         fail(err) {
-            reject(err)
-         },
-      })
-   })
-}
-
-/**
  * 加密函数
  * @param data 需要加密的数据
  * @param key 加密秘钥
@@ -167,4 +143,24 @@ export function saveImgToAlbum(url: string): Promise<object> {
          }
       })
    })
+}
+
+/**
+ * 预览文档
+ * @param url [STRING] 文档地址链接(doc, xls, ppt, pdf, docx, xlsx, pptx)
+ */
+export function documentPreview(url: string) {
+   uni.showLoading({title: '加载中...'})
+   uni.downloadFile({
+      url: url,
+      success: function (res) {
+        uni.openDocument({
+          filePath: res.tempFilePath,
+          showMenu: true,
+          success: function () {
+            uni.hideLoading()
+          }
+        });
+      }
+    });
 }

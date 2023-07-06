@@ -44,7 +44,8 @@ const props = defineProps({
 
 // 瀑布流
 let waterfall: any = reactive<Array<[ImgType]>>([]) // 瀑布中的所有数据
-onLoad(() => {
+
+onMounted(() => {
    nextTick(async () => {
       if (props.data.length > 0 && !props.room) {
          waterFallLayout(props.data)
@@ -57,11 +58,6 @@ onLoad(() => {
          }
       }
    })
-})
-
-// 触发更新收藏夹操作
-uni.$on('cancel-favorite', () => {
-   
 })
 
 // 获取数组中最小值的下标
@@ -122,7 +118,7 @@ const columnDetails = (img: ImgType) => {
 
       .item {
          width: 100%;
-         min-height: 200rpx;
+         min-height: 100rpx;
          line-height: 0;
          box-sizing: border-box;
 

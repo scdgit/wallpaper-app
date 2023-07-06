@@ -5,8 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { loadJsonData, encryptData } from '@/utils'
-import { BASE_URL, KEY } from '@/config'
+import { encryptData } from '@/utils'
+import { loadJsonData } from '@/api'
+import { BASE_URL } from '@/config'
 uni.showLoading({ title: '加载中...' })
 
 // 初始化资源链接
@@ -20,7 +21,6 @@ onMounted(async () => {
 	uni.getSystemInfo({
 		success: function(res) {
 			uni.setStorageSync('deviceType', res.uniPlatform)
-			uni.setStorageSync('deviceinfo', res)
 		}
 	})
 })

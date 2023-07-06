@@ -29,20 +29,27 @@
 		<!-- 扩展功能 -->
 		<view class="extend">
 			<uni-list>
-				<uni-list-item title="📙&nbsp;我的收藏" showArrow clickable @click="goTo('/subpackage/favorites')"/>
-				<uni-list-item title="️🖨️&nbsp;我的下载" showArrow clickable />
+				<uni-list-item title="🌸&nbsp;我的收藏" showArrow clickable @click="goTo('/subpackage/favorites')"/>
+            <a v-if="deviceType === 'web'" :href="USE_MANUAL" class="alink">
+				   <uni-list-item title="️📄&nbsp;使用说明" showArrow clickable/>
+            </a>
+            <uni-list-item v-else title="️📄&nbsp;使用说明" showArrow clickable @click="documentPreview(USE_MANUAL.replace('/imgapi/img', BASE_URL))"/>
 				<uni-list-item title="⚙️️&nbsp;主题设置" showArrow clickable />
-				<uni-list-item title="🛰️&nbsp;清除数据" showArrow clickable @click="loginOut"/>
+				<uni-list-item title="☃️&nbsp;清除数据" showArrow clickable @click="loginOut"/>
 			</uni-list>
 		</view>
 	</view>
 </template>
 
 <script setup lang="ts">
+import { USE_MANUAL, BASE_URL } from '@/config'
+import { documentPreview } from '@/utils'
+
 // 是否处于编辑状态
 let isEdit = ref<boolean>(false)
 let nickname = ref<string>(uni.getStorageSync('nickname'))
 let avatar = ref<string>(uni.getStorageSync('avatar'))
+let deviceType = ref<string>(uni.getStorageSync('deviceType'))
 // 信息编辑
 const doEdit = () => {
 	isEdit.value = !isEdit.value
@@ -77,6 +84,7 @@ const editAvatar = () => {
 //编辑昵称
 const editNickname = () => {
 	uni.showModal({ editable: true, placeholderText: '请输入昵称' }).then((inp: any) => {
+      if (!inp.content) return // 取消编辑
 		if (!inp.content.trim()) return uni.showToast({title: '内容不能为空', icon: 'error'})
 		uni.showLoading({title: '上传中...'})
 		setTimeout(() => {
@@ -89,6 +97,10 @@ const editNickname = () => {
 }
 // 跳转路由
 const goTo = (fullpath: string) => {
+   if (fullpath === '/subpackage/favorites' && !uni.getStorageSync('favorites')) {
+      uni.showToast({title: '啥都没有', icon: 'none'})
+      return
+   }
    uni.navigateTo({url: fullpath})
 }
 // 退出登陆
@@ -251,6 +263,9 @@ const loginOut = () => {
 		padding: 0 28rpx;
 		box-sizing: border-box;
 		font-size: 24rpx;
+      .alink {
+         text-decoration: none;
+      }
       .add {
          display: flex;
          align-items: center;

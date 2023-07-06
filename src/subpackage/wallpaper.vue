@@ -61,7 +61,7 @@ const imgLoad = () => {
 }
 // 返回按钮
 const goBack = () => {
-   if (pre_path.value == 'undefined') {
+   if (pre_path.value == 'undefined' || !pre_path.value) {
       const page = getCurrentPages()
       if (page.length > 1) uni.navigateBack({ delta: 2 })
       else uni.switchTab({ url: '/pages/index/index' })
