@@ -1,8 +1,12 @@
 <template>
    <div class="wallpaper">
       <!-- 图片预览 -->
-      <view class="preview">
+      <view v-if="img" class="preview">
          <MyImage :src="img && img.url" mode="widthFix" @load="imgLoad" />
+      </view>
+      <!-- 视频预览 -->
+      <view v-if="video" class="video">
+         <MyVideo :video="video" />
       </view>
       <view class="tool">
          <view class="tool-item" @click="goBack">
@@ -26,12 +30,13 @@
          </label>
       </view>
       <button id="share-btn" open-type="share" style="display: none;" />
-   </div>
+   </div>   
 </template>
 
 <script setup lang="ts">
-import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import MyImage from '@/components/MyImage.vue'
+import MyVideo from '@/components/MyVideo.vue'
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { HOST } from '@/config'
 import type { ImgType } from '@/type'
 import { decryptData, saveImgToAlbum } from '@/utils'
@@ -41,12 +46,15 @@ let img = ref<ImgType>() // 图片对象
 let deviceType = ref<string>('') // 当前设备类型
 let isCollect = ref<boolean>(false) // 是否收藏
 let pre_path = ref<string>('') // 跳转前的页面
+let video: any = ref<object>({}) // 视频链接
 
 onLoad((options: any) => {
-   uni.showLoading({ title: '加载中...' })
-   img.value = decryptData(options.img)
+   // uni.showLoading({ title: '加载中...' })
+   img.value = options.img ? decryptData(options.img): null
    pre_path.value = options.pre_path
    deviceType.value = uni.getStorageSync('deviceType')
+   // 视频链接
+   video.value = options.video ? JSON.parse(options.video): null
    // 判断是否已收藏
    useFavorites.forEach((element: ImgType) => {
       if (element.file === img.value.file) return isCollect.value = true
@@ -55,12 +63,11 @@ onLoad((options: any) => {
 
 // 图片加载
 const imgLoad = () => {
-   setTimeout(() => {
-      uni.hideLoading()
-   }, 200)
+   uni.hideLoading()
 }
 // 返回按钮
 const goBack = () => {
+   uni.hideLoading()
    if (pre_path.value == 'undefined' || !pre_path.value) {
       const page = getCurrentPages()
       if (page.length > 1) uni.navigateBack({ delta: 2 })
@@ -141,15 +148,21 @@ const toDownload = async (img: ImgType) => {
    display: flex;
    align-items: center;
    justify-content: center;
+   background-color: #fff;
+   background-size: 100%;
+   background-repeat: repeat-y;
+   background-position: left top;
 
-   .preview {
-      width: 95%;
+   .preview, .video {
+      width: 100%;
+      height: 100vh;
       line-height: 0;
    }
 
    // 工具栏
    .tool {
       position: fixed;
+      z-index: 99;
       bottom: 30rpx;
       left: 50%;
       transform: translateX(-50%);
@@ -160,7 +173,6 @@ const toDownload = async (img: ImgType) => {
       display: flex;
       justify-content: space-around;
       border-radius: 60rpx;
-      border: 1px solid rgba(255, 255, 255, .3);
 
       .tool-item {
          display: flex;

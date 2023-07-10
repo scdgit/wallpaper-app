@@ -1,86 +1,282 @@
 <template>
-	<view class="index-page">
-		<uni-search-bar placeholder="请输入关键字" @confirm="searchClick" @input="(e:string) => kwd = e.trim()" @cancel="() => kwd = ``" />
-		<!-- 轮播图 -->
-		<view class="swiper-box">
-			<PiaoyiSwiper :list="banner" :round="10" />
-		</view>
-		<!-- 主体内容区域 -->
-		<view class="main">
-			<view v-for="(item, i) in column" :key="i" class="main-item">
-				<uni-group  class="item-title" :title="item.title" mode="card">
-					<!-- 瀑布流 -->
-					<WaterFallFlow :room="item.room" :column="3" space="4rpx" />
-				</uni-group >
-				<!-- 查看详情按钮 -->
-				<view class="more">
-					<uni-icons type="list" size="20px" />
-				</view>
-			</view>
-		</view>
-	</view>
+   <view class="container">
+      <view class="nav-heiader">
+         <view class="title">新闻</view>
+         <view class="icons">
+            <uni-icons type="search" size="40rpx" />
+            <uni-icons type="notification" size="40rpx" />
+         </view>
+      </view>
+      <!-- 轮播图 -->
+      <view class="swoper-box">
+         <swiper class="swiper" @change="toggleCurrent">
+            <swiper-item v-for="(item, index) of banner" :key="index">
+               <view class="swiper-item uni-bg-red">
+                  <image :src="item.url" class="image" mode="widthFix" />
+               </view>
+            </swiper-item>
+         </swiper>
+         <view class="dots">
+            <view v-for="(_, index) of banner" :key="index" class="dot-item" :class="{ active: index === currentPoint }" />
+         </view>
+      </view>
+      <!-- 分类栏 -->
+      <view class="classification">
+         <view v-for="item of [1, 2, 3, 4, 5]" :key="item" class="item">
+            <uni-icons type="images" size="60rpx" class="icon" />
+            <text class="text">自制神剧</text>
+         </view>
+      </view>
+      <!-- 通知栏 -->
+      <uni-notice-bar show-icon scrollable class="notice"
+         text="uni-app 版正式发布，开发一次，同时发布iOS、Android、H5、微信小程序、支付宝小程序、百度小程序、头条小程序等7大平台。" />
+      <!-- 主体内容区域 -->
+      <view class="column-container">
+         <view class="column1">
+            <view class="column-title">
+               <uni-section title="热门资质" type="line">
+                  <template #right>
+                     <text class="text">查看更多</text>
+                     <uni-icons type="forward" size="24rpx" color="#A5A5A5"/>
+                  </template>
+               </uni-section>
+            </view>
+            <view class="column-content">
+               <view class="image-box">
+                  <image src="@static/column1.png" class="image" mode="widthFix"/>
+               </view>
+               <view class="image-box">
+                  <image src="@static/column1.png" class="image" mode="widthFix"/>
+               </view>
+            </view>
+         </view>
+         <view class="conlum2">
+            <view class="column-title">
+               <uni-section title="代办推荐" type="line">
+                  <template #right>
+                     <text class="text">查看更多</text>
+                     <uni-icons type="forward" size="24rpx" color="#A5A5A5"/>
+                  </template>
+               </uni-section>
+            </view>
+            <view class="column-content">
+               <view class="image-box">
+                  <image src="@static/column2.png" class="image" mode="widthFix"/>
+               </view>
+            </view>
+         </view>
+      </view>
+   </view>
 </template>
 
 <script setup lang="ts">
-import PiaoyiSwiper from '@/components/PiaoyiSwiper.vue'
+import Banner from '@/components/Banner.vue'
 import WaterFallFlow from '@/components/waterfall-flow.vue'
-import type { BannerType, columnType } from '@/type'
+import MyVideo from '@/components/MyVideo.vue'
+import type { BannerType, ColumnType } from '@/type'
 import { JSON_URL } from '@/config'
 import { decryptData } from '@/utils'
 
 let kwd = ref<string>() // 搜索框关键字
 let banner = ref<Array<BannerType>>() // 轮播图数据
-let column = ref<Array<columnType>>() // 分类列表
+let column = reactive<Array<ColumnType>>([]) // 分类列表
+
+const fenlei = [
+   { title: '壁纸' },
+   { title: '头像' },
+   { title: '表情' },
+   { title: '插画' },
+   { title: '动漫' },
+   { title: '风景' },
+   { title: '古风' },
+   { title: '更多' }
+]
+
+const videos = [
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
+]
 
 //#ifdef MP-WEIXIN
 uni.showShareMenu()
 //#endif
-onMounted(() => {
-	// 解密
-	banner.value = decryptData(uni.getStorageSync('banner'))
-	// 获取专栏列表
-	uni.request({
-		url: `${JSON_URL}/main.json`,
-		success: (res: any) => {
-			column.value = res.data.column
-		}
-	})
+
+onLoad(() => {
+   uni.hideLoading()
+   // 解密
+   banner.value = uni.getStorageSync('DATABASE').banner
+   // 获取专栏列表
+   column = uni.getStorageSync('DATABASE').column
 })
 // 点击搜索按钮
-const searchClick = () => {}
+const searchClick = () => { }
 // 专栏详情
+
+// 轮播图的点
+let currentPoint = ref<number>(0)
+const toggleCurrent = (e: any) => {
+   currentPoint.value = e.detail.current
+}
 
 </script>
 
 <style scoped lang="scss">
-.index-page {
-	padding-bottom: 2rpx;
-	background: var(--bg-color);
-	// 轮播图
-	.swiper-box {
-		padding: 20rpx;
-	}
-	// 搜搜框
-	::v-deep .uni-searchbar {
-		background-color: #efefef;
-	}
-	.main {
-		// 瀑布流
-		.main-item {
-			min-height: 300rpx;
-			position: relative;
-			.more {
-				position: absolute;
-				top: 10px;
-				right: 20px;
-			}
-			::v-deep .uni-group__content {
-				padding: 10px;
-			}
-			::v-deep .uni-group__title {
-				background-color: #f7d5d3 !important;
-			}
-		}
-	}
-}
-</style>
+.container {
+   padding-bottom: 2rpx;
+   background-color: var(--bg-color);
+   padding: 0 30rpx;
+   box-sizing: border-box;
+
+   // 顶部导航
+   .nav-heiader {
+      height: 56rpx;
+      display: flex;
+      justify-content: space-between;
+      font-size: 30rpx;
+      line-height: 56rpx;
+      // margin-top: 98rpx;
+      margin-bottom: 40rpx;
+
+      .uni-icons {
+         margin-left: 20rpx;
+      }
+   }
+
+   .swoper-box {
+      position: relative;
+
+      .swiper {
+         width: 690rpx;
+         height: 304rpx;
+         margin: 0 auto;
+
+         .image {
+            width: 100%;
+            height: 100%;
+         }
+      }
+
+      .dots {
+         position: absolute;
+         bottom: -18rpx;
+         left: 50%;
+         transform: translateX(-50%);
+         z-index: 999;
+         margin-top: 18rpx;
+         display: flex;
+
+         .dot-item {
+            height: 4rpx;
+            width: 40rpx;
+            margin: 0 4rpx;
+            background-color: #d8d2d2;
+         }
+
+         .active {
+            background-color: #ED512D;
+         }
+      }
+   }
+
+   // 分类栏
+   .classification {
+      width: 690rpx;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 70rpx;
+
+      .item {
+         // width: 10.67%;
+         // height: 4.08%;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: center;
+
+         .text {
+            font-size: 20rpx !important;
+            margin-top: 16rpx;
+            color: #666666;
+         }
+      }
+   }
+
+   // 通知栏
+   .notice {
+      height: 60rpx;
+      width: 690rpx;
+      border-radius: 26rpx;
+      background-color: #F5F5F5 !important;
+      margin: 56rpx 0 48rpx;
+
+      ::v-deep .uni-icons {
+         color: #FB5542 !important;
+      }
+
+      ::v-deep .uni-noticebar__content-text {
+         color: #999 !important;
+      }
+   }
+
+   ::v-deep .column-container,
+   ::v-deep .uni-section-header {
+      padding: 0 !important;
+   }
+
+   // 主体内容区域
+   .column-container {
+      width: 100%;
+      .column-title {
+         height: 50rpx;
+         line-height: 50rpx;
+         margin-bottom: 30rpx;
+         ::v-deep .line {
+            background-color: #FF6D19;
+         }
+         ::v-deep .uni-section__content-title {
+            font-size: 36rpx;
+            color: #303133 !important;
+         }
+         .text {
+            color: #A5A5A5;
+            font-size: 24rpx;
+         }
+      }
+      .image {
+         width: 100%;
+         height: 100%;
+         line-height: 0;
+      }
+      .column1 {
+         width: 100%;
+         margin-bottom: 48rpx;
+         .column-content {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            .image-box {
+               width: 336rpx;
+            }
+         }
+      }
+      .column2 {
+         width: 100%;
+         margin-bottom: 48rpx;
+         .column-content {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            .image-box {
+               width: 100%;
+               height: 158px;
+            }
+         }
+      }
+   }
+
+
+}</style>

@@ -1,11 +1,13 @@
 <template>
 	<view class="uni-margin-wrap" :style="{ borderRadius: round + 'rpx' }">
-		<swiper class="swiper" circular :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval"
-			:duration="duration" :current="current" indicator-active-color="rgba(255,255,255,.6)" @change="change"
+		<swiper class="swiper" circular :indicator-dots="indicatorDots" :autoplay="getAutoplay" :interval="interval"
+			:duration="duration" :current="current" indicator-active-color="rgba(255,255,255,.6)" 
+         :style="{height: height * 2 + 'rpx'}"
+         @change="change"
 			@animationfinish="animationfinish">
-			<swiper-item v-for="(item, index) of bannerList" :key="index">
+			<swiper-item v-for="(item, index) of list" :key="index">
 				<view class="swiper-item uni-bg-red">
-					<image class="image" :src="`${BASE_URL}/banner/${item.file}`" mode="aspectFill" :fade-show="true" :lazy-load="true" @click="goToPreview(item)"/>
+					<image class="image" :src="item.url" mode="aspectFill" :fade-show="true" :lazy-load="true" @click="goToPreview(item)"/>
 				</view>
 			</swiper-item>
 		</swiper>
@@ -13,18 +15,22 @@
 </template>
 
 <script setup lang="ts">
-import { BASE_URL } from '@/config'
-import { ImgType } from '@/type'
+import { BannerType } from '@/type'
 import { encryptData } from '@/utils'
 let current = ref<number>(0)
+
 const props = defineProps({
 	round: {
 		type: Number,
 		default: 0
 	},
+   height: {
+      type: Number,
+      default: 210
+   },
 	list: {
-		type: Array<{ file: string }>,
-		default: [{ file: '' }, { file: '' }, { file: '' }]
+		type: Array<BannerType>,
+		default: []
 	},
 	// 是否显示指示点
 	indicatorDots: {
@@ -57,8 +63,12 @@ const props = defineProps({
 		default: () => { }
 	},
 })
-const bannerList: any = toRef(props, 'list')
-const goToPreview = (img: ImgType) => {
+
+const getAutoplay = computed(() => {
+   return props.autoplay
+})
+
+const goToPreview = (img: BannerType) => {
    uni.navigateTo({
       url: `/subpackage/wallpaper?img=${encryptData(img)}`
    })
@@ -74,7 +84,7 @@ const goToPreview = (img: ImgType) => {
 }
 
 .swiper {
-	height: 300rpx;
+	height: 224rpx;
 }
 
 .swiper-item {
@@ -83,7 +93,7 @@ const goToPreview = (img: ImgType) => {
 	height: 100%;
 	text-align: center;
 
-	.image {
+	.image { 
 		width: 100%;
 		height: 100%;
 	}

@@ -6,10 +6,11 @@ export interface BannerType {
    path?: string // 跳转连接
    title?: string // 标题
    describe?: string // 描述信息
+   url?: string // 完整链接
 }
 
 // 单项专栏类型
-export interface columnType {
+export interface ColumnType {
    title: string
    room: string
 }

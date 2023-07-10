@@ -4,7 +4,7 @@
 		<view class="user-info">
 			<view class="user-base">
 				<image :src="avatar || `/static/avatar.png`"  class="avatar" mode="aspectFill"/>
-				<text class="name">{{ nickname || '待完善' }}</text>
+				<text class="name">{{ nickname }}</text>
 			</view>
 			<button class="edit" @click="doEdit">编辑信息{{ isEdit ? '☹️' : '☺️' }}</button>
 			<view class="edit-options" :class="{ open: isEdit, close: !isEdit }">
@@ -47,9 +47,10 @@ import { documentPreview } from '@/utils'
 
 // 是否处于编辑状态
 let isEdit = ref<boolean>(false)
-let nickname = ref<string>(uni.getStorageSync('nickname'))
+let nickname = ref<string>(uni.getStorageSync('nickname') || '带完善')
 let avatar = ref<string>(uni.getStorageSync('avatar'))
 let deviceType = ref<string>(uni.getStorageSync('deviceType'))
+
 // 信息编辑
 const doEdit = () => {
 	isEdit.value = !isEdit.value
@@ -103,14 +104,14 @@ const goTo = (fullpath: string) => {
    }
    uni.navigateTo({url: fullpath})
 }
-// 退出登陆
+// 清除数据
 const loginOut = () => {
-	console.log(11)
 	uni.showModal({ 
 		title: '是否清除所有数据？',
 		success({confirm}) {
 			confirm && uni.clearStorage()
 			confirm && uni.showToast({title: '清除成功'})
+         uni.redirectTo({url: '/pages/login/login'})
 		},
 	})
 }
@@ -118,7 +119,6 @@ const loginOut = () => {
 
 <style lang="scss" scoped>
 .personal-page {
-
 	//用户信息
 	.user-info {
 		width: 100%;

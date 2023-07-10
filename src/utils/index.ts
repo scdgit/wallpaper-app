@@ -1,4 +1,4 @@
-import { JSON_URL, KEY, WEB_IMG_API } from '@/config'
+import { KEY, WEB_IMG_API } from '@/config'
 
 /**
  * 获取一个指定范围的随机数
@@ -17,9 +17,9 @@ export function getRandomNumber(star: number, end: number) {
  */
 export function randomColor(opcity?: number) {
    let color: string
-   const r = getRandomNumber(0, 255)
-   const g = getRandomNumber(0, 255)
-   const b = getRandomNumber(0, 255)
+   const r = getRandomNumber(0, 128)
+   const g = getRandomNumber(0, 128)
+   const b = getRandomNumber(0, 128)
    if (opcity) {
       color = `rgba(${r},${g},${b},${opcity})`
    } else {
@@ -108,7 +108,7 @@ export function saveImgToAlbum(url: string): Promise<object> {
       return
    }
    frag1 = true
-   uni.showLoading({title: '下载中...'})
+   uni.showLoading({ title: '下载中...' })
    return new Promise((resolve, reject) => {
       uni.downloadFile({
          url: url,
@@ -119,8 +119,8 @@ export function saveImgToAlbum(url: string): Promise<object> {
                   filePath: res.tempFilePath,
                   success: (saveRes) => {
                      uni.hideLoading()
-                     uni.showToast({title: '已保存'})
-                     resolve({msg: 'download:ok', path: saveRes.path})
+                     uni.showToast({ title: '已保存' })
+                     resolve({ msg: 'download:ok', path: saveRes.path })
                      frag1 = true
                   },
                   fail: () => {
@@ -131,13 +131,13 @@ export function saveImgToAlbum(url: string): Promise<object> {
             } else {
                uni.hideLoading()
                uni.showToast({ title: '下载失败', icon: 'error' })
-               reject({msg:'download:failed'})
+               reject({ msg: 'download:failed' })
                frag1 = true
             }
          },
          fail: () => {
             uni.hideLoading()
-            reject({msg:'download:failed'})
+            reject({ msg: 'download:failed' })
             uni.showToast({ title: '网络错误', icon: 'error' })
             frag1 = true
          }
@@ -149,18 +149,28 @@ export function saveImgToAlbum(url: string): Promise<object> {
  * 预览文档
  * @param url [STRING] 文档地址链接(doc, xls, ppt, pdf, docx, xlsx, pptx)
  */
-export function documentPreview(url: string) {
-   uni.showLoading({title: '加载中...'})
+export async function documentPreview(url: string) {
+   uni.showLoading({ title: '加载中...' })
    uni.downloadFile({
       url: url,
       success: function (res) {
-        uni.openDocument({
-          filePath: res.tempFilePath,
-          showMenu: true,
-          success: function () {
-            uni.hideLoading()
-          }
-        });
+         uni.openDocument({
+            filePath: res.tempFilePath,
+            showMenu: true,
+            success: function () {
+               uni.hideLoading()
+            }
+         });
       }
-    });
+   });
+}
+
+/**
+ * 获取底部导航tabbar的高度
+ * @returns STRING
+ */
+export function getTabbarH() {
+   const systemInfo = uni.getSystemInfoSync();
+   const tabBarHeight = systemInfo.screenHeight - systemInfo.windowHeight - systemInfo.statusBarHeight;
+   return tabBarHeight
 }

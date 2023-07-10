@@ -28,7 +28,7 @@ export default defineConfig({
     // 设置路径别名
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      '@img': path.resolve(__dirname, 'src/static/images'),
+      '@static': path.resolve(__dirname, 'src/static'),
     },
   },
   // 配置代理

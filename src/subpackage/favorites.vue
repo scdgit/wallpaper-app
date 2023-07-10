@@ -1,7 +1,7 @@
 <template>
    <view class="container">
       <view class="favorites">
-         <WaterFallFlow :data="useFavorites" :column="3" space="8rpx" :livekeep="false"/>
+         <WaterFallFlow :data="useFavorites" :column="3" :space="4" :livekeep="false"/>
       </view>
       <view class="back" @click="goBack">
          <uni-icons type="arrow-left" size="30" color="skyblue" />&nbsp;返回
