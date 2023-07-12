@@ -2,11 +2,7 @@
    <div class="wallpaper">
       <!-- 图片预览 -->
       <view v-if="img" class="preview">
-         <MyImage :src="img && img.url" mode="widthFix" @load="imgLoad" />
-      </view>
-      <!-- 视频预览 -->
-      <view v-if="video" class="video">
-         <MyVideo :video="video" />
+         <MyImage :src="img && img.url" mode="widthFix"/>
       </view>
       <view class="tool">
          <view class="tool-item" @click="goBack">
@@ -35,7 +31,6 @@
 
 <script setup lang="ts">
 import MyImage from '@/components/MyImage.vue'
-import MyVideo from '@/components/MyVideo.vue'
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { HOST } from '@/config'
 import type { ImgType } from '@/type'
@@ -49,31 +44,27 @@ let pre_path = ref<string>('') // 跳转前的页面
 let video: any = ref<object>({}) // 视频链接
 
 onLoad((options: any) => {
-   // uni.showLoading({ title: '加载中...' })
    img.value = options.img ? decryptData(options.img): null
    pre_path.value = options.pre_path
    deviceType.value = uni.getStorageSync('deviceType')
-   // 视频链接
-   video.value = options.video ? JSON.parse(options.video): null
    // 判断是否已收藏
    useFavorites.forEach((element: ImgType) => {
       if (element.file === img.value.file) return isCollect.value = true
    });
 })
 
-// 图片加载
-const imgLoad = () => {
-   uni.hideLoading()
-}
 // 返回按钮
 const goBack = () => {
-   uni.hideLoading()
    if (pre_path.value == 'undefined' || !pre_path.value) {
       const page = getCurrentPages()
       if (page.length > 1) uni.navigateBack({ delta: 2 })
       else uni.switchTab({ url: '/pages/index/index' })
    } else {
-      uni.redirectTo({ url: pre_path.value })
+      try {
+         uni.redirectTo({ url: pre_path.value })
+      } catch(error) {
+         uni.reLaunch({ url: pre_path.value })
+      }
    }
 }
 
@@ -173,7 +164,6 @@ const toDownload = async (img: ImgType) => {
       display: flex;
       justify-content: space-around;
       border-radius: 60rpx;
-
       .tool-item {
          display: flex;
          flex-direction: column;

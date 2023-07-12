@@ -9,7 +9,11 @@ document.addEventListener('contextmenu', function(e) {
 </script>
 <style lang="scss">
 @import './uni.scss';
-body,html { font-size: 16px; }
+@import './style/animation.css';
+body,html { 
+   font-size: 32rpx;
+   font-family: PingFangSC-Regular;
+}
 // h5页面隐藏顶部导航条
 /* #ifdef H5 */ 
 uni-page-head {

@@ -1,101 +1,99 @@
 <template>
-	<view class="uni-margin-wrap" :style="{ borderRadius: round + 'rpx' }">
-		<swiper class="swiper" circular :indicator-dots="indicatorDots" :autoplay="getAutoplay" :interval="interval"
-			:duration="duration" :current="current" indicator-active-color="rgba(255,255,255,.6)" 
-         :style="{height: height * 2 + 'rpx'}"
-         @change="change"
-			@animationfinish="animationfinish">
-			<swiper-item v-for="(item, index) of list" :key="index">
-				<view class="swiper-item uni-bg-red">
-					<image class="image" :src="item.url" mode="aspectFill" :fade-show="true" :lazy-load="true" @click="goToPreview(item)"/>
-				</view>
-			</swiper-item>
-		</swiper>
-	</view>
+   <view class="swoper-box">
+      <swiper class="swiper" :circular="circular" :autoplay="setAutoplay" @change="toggleCurrent">
+         <swiper-item v-for="(item, index) of data" :key="index" @click="columnDetails(item)">
+            <view class="swiper-item uni-bg-red">
+               <image :src="item.url" class="image" mode="widthFix"/>
+            </view>
+         </swiper-item>
+      </swiper>
+      <view class="dots">
+         <view v-for="(_, index) of data" :key="index" class="dot-item" :class="{ active: index === currentPoint }" />
+      </view>
+   </view>
 </template>
-
 <script setup lang="ts">
-import { BannerType } from '@/type'
+import type { BannerType, ImgType } from '@/type'
 import { encryptData } from '@/utils'
-let current = ref<number>(0)
 
 const props = defineProps({
-	round: {
-		type: Number,
-		default: 0
-	},
-   height: {
-      type: Number,
-      default: 210
+   data: {
+      type: Array<BannerType | BannerType>,
+      default: []
    },
-	list: {
-		type: Array<BannerType>,
-		default: []
-	},
-	// 是否显示指示点
-	indicatorDots: {
-		type: Boolean,
-		default: true
-	},
-	// 自动轮播
-	autoplay: {
-		type: Boolean,
-		default: false
-	},
-	// 轮播间隔
-	interval: {
-		type: Number,
-		default: 5000
-	},
-	// 切换持续时间
-	duration: {
-		type: Number,
-		default: 500
-	},
-	// 当前页改变时触发
-	change: {
-		type: Function,
-		default: () => { }
-	},
-	// 动画结束时触发
-	animationfinish: {
-		type: Function,
-		default: () => { }
-	},
+   livekeep: {
+      type: Boolean,
+      default: true
+   },
+   circular: {
+      type: Boolean,
+      default: true
+   },
+   autoplay: {
+      type: Boolean,
+      default: false
+   }
 })
 
-const getAutoplay = computed(() => {
-   return props.autoplay
+let _play = ref<boolean>(props.autoplay)
+// 设置播放
+const setAutoplay = computed(() => {
+   return _play.value
+})
+watch(() => props.autoplay, (nval: boolean) => {
+   _play.value = nval
 })
 
-const goToPreview = (img: BannerType) => {
+// 轮播图的点
+let currentPoint = ref<number>(0)
+const toggleCurrent = (e: any) => {
+   currentPoint.value = e.detail.current
+}
+// 预览图片
+const columnDetails = (img: ImgType | BannerType) => {
+   let pre_path: string
+   const pages = getCurrentPages()
+   if (!props.livekeep) pre_path = '/' + pages[pages.length - 1].route
    uni.navigateTo({
-      url: `/subpackage/wallpaper?img=${encryptData(img)}`
+      url: `/subpackage/wallpaper?img=${encryptData(img)}&pre_path=${pre_path}`
    })
 }
 </script>
 
 <style lang="scss" scoped>
-.uni-margin-wrap {
-	width: 100%;
-	box-sizing: border-box;
-	background-color: skyblue;
-	overflow: hidden;
-}
+.swoper-box {
+   position: relative;
 
-.swiper {
-	height: 224rpx;
-}
+   .swiper {
+      width: 690rpx;
+      height: 304rpx;
+      margin: 0 auto;
 
-.swiper-item {
-	display: block;
-	width: auto;
-	height: 100%;
-	text-align: center;
+      .image {
+         width: 100%;
+         height: 100%;
+      }
+   }
 
-	.image { 
-		width: 100%;
-		height: 100%;
-	}
+   .dots {
+      position: absolute;
+      bottom: -18rpx;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      margin-top: 18rpx;
+      display: flex;
+
+      .dot-item {
+         height: 4rpx;
+         width: 40rpx;
+         margin: 0 4rpx;
+         background-color: #d8d2d2;
+      }
+
+      .active {
+         background-color: #ED512D;
+      }
+   }
 }
 </style>

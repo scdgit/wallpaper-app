@@ -17,11 +17,12 @@ export interface ColumnType {
 
 // 图片对象
 export interface ImgType {
-   file: string
-   describe: string
-   tag: string
-   height?: string
-   width?: string
-   room?: string
-   url?: string
+   file: string // 文件名
+   describe: string // 描述
+   tag: string // 标签
+   ratio: number // 比例
+   height?: number
+   width?: number
+   room?: string // 存放图片的目录
+   url?: string // 图片地址
 }

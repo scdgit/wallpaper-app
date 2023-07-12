@@ -8,18 +8,7 @@
          </view>
       </view>
       <!-- 轮播图 -->
-      <view class="swoper-box">
-         <swiper class="swiper" @change="toggleCurrent">
-            <swiper-item v-for="(item, index) of banner" :key="index">
-               <view class="swiper-item uni-bg-red">
-                  <image :src="item.url" class="image" mode="widthFix" />
-               </view>
-            </swiper-item>
-         </swiper>
-         <view class="dots">
-            <view v-for="(_, index) of banner" :key="index" class="dot-item" :class="{ active: index === currentPoint }" />
-         </view>
-      </view>
+      <Banner :data="banner" :autoplay="setAutoplay"/>
       <!-- 分类栏 -->
       <view class="classification">
          <view v-for="item of [1, 2, 3, 4, 5]" :key="item" class="item">
@@ -28,8 +17,7 @@
          </view>
       </view>
       <!-- 通知栏 -->
-      <uni-notice-bar show-icon scrollable class="notice"
-         text="uni-app 版正式发布，开发一次，同时发布iOS、Android、H5、微信小程序、支付宝小程序、百度小程序、头条小程序等7大平台。" />
+      <uni-notice-bar show-icon scrollable class="notice" :text="noticeText" />
       <!-- 主体内容区域 -->
       <view class="column-container">
          <view class="column1">
@@ -71,35 +59,12 @@
 
 <script setup lang="ts">
 import Banner from '@/components/Banner.vue'
-import WaterFallFlow from '@/components/waterfall-flow.vue'
-import MyVideo from '@/components/MyVideo.vue'
 import type { BannerType, ColumnType } from '@/type'
-import { JSON_URL } from '@/config'
 import { decryptData } from '@/utils'
 
-let kwd = ref<string>() // 搜索框关键字
 let banner = ref<Array<BannerType>>() // 轮播图数据
-let column = reactive<Array<ColumnType>>([]) // 分类列表
-
-const fenlei = [
-   { title: '壁纸' },
-   { title: '头像' },
-   { title: '表情' },
-   { title: '插画' },
-   { title: '动漫' },
-   { title: '风景' },
-   { title: '古风' },
-   { title: '更多' }
-]
-
-const videos = [
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-   { title: '海底世界', url: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/dt1.mp4', img: 'http://x006.b.u8s.ru/img/dong-tai-bi-zi/dt1/bg.png' },
-]
+let autoplay = ref<boolean>(true)
+let noticeText = 'uni-app 版正式发布，开发一次，同时发布iOS、Android、H5、微信小程序、支付宝小程序、百度小程序、头条小程序等7大平台。'
 
 //#ifdef MP-WEIXIN
 uni.showShareMenu()
@@ -107,21 +72,20 @@ uni.showShareMenu()
 
 onLoad(() => {
    uni.hideLoading()
-   // 解密
    banner.value = uni.getStorageSync('DATABASE').banner
-   // 获取专栏列表
-   column = uni.getStorageSync('DATABASE').column
 })
-// 点击搜索按钮
-const searchClick = () => { }
-// 专栏详情
 
-// 轮播图的点
-let currentPoint = ref<number>(0)
-const toggleCurrent = (e: any) => {
-   currentPoint.value = e.detail.current
-}
-
+onPageScroll(({scrollTop}) => {
+   if (scrollTop >= 202) {
+      // 停止轮播图的播放
+      autoplay.value = false
+   } else {
+      autoplay.value = true
+   }
+})
+const setAutoplay = computed(() => {
+   return autoplay.value
+})
 </script>
 
 <style scoped lang="scss">
@@ -143,42 +107,6 @@ const toggleCurrent = (e: any) => {
 
       .uni-icons {
          margin-left: 20rpx;
-      }
-   }
-
-   .swoper-box {
-      position: relative;
-
-      .swiper {
-         width: 690rpx;
-         height: 304rpx;
-         margin: 0 auto;
-
-         .image {
-            width: 100%;
-            height: 100%;
-         }
-      }
-
-      .dots {
-         position: absolute;
-         bottom: -18rpx;
-         left: 50%;
-         transform: translateX(-50%);
-         z-index: 999;
-         margin-top: 18rpx;
-         display: flex;
-
-         .dot-item {
-            height: 4rpx;
-            width: 40rpx;
-            margin: 0 4rpx;
-            background-color: #d8d2d2;
-         }
-
-         .active {
-            background-color: #ED512D;
-         }
       }
    }
 

@@ -174,3 +174,15 @@ export function getTabbarH() {
    const tabBarHeight = systemInfo.screenHeight - systemInfo.windowHeight - systemInfo.statusBarHeight;
    return tabBarHeight
 }
+
+/**
+ * 获取顶部导航的高度
+ * @returns 
+ */
+export function getNavigationH() {
+   const systemInfo = uni.getSystemInfoSync();
+   const statusBarHeight = systemInfo.statusBarHeight || 0;
+   const defaultNavBarHeight = systemInfo.platform === 'ios' ? 44 : 48;
+   const navigationBarHeight = statusBarHeight + defaultNavBarHeight;
+   return navigationBarHeight
+}

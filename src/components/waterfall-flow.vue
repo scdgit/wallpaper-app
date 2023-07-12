@@ -2,26 +2,26 @@
    <view class="waterfall">
       <view class="list-container">
          <view v-for="(list, i) of waterfall" :key="i" class="list"
-            :style="{ width: listWidth + '%', marginLeft: i === 0 ? '0' : space * 2 + 'rpx' }"
-         >
-            <view v-for="(item, k) of list" :key="k" class="item"
-               :style="{ 
-                  background: randomColor(), 
-                  marginTop: k === 0 ? '0' : space * 2 + 'rpx',
-                  borderRadius: round + 'px'
-               }"
-            >
-               <image class="img" :src="item.url" mode="widthFix" :lazy-load="true" :fade-show="true" @click="columnDetails(item)" />
+            :style="{ width: listWidth + '%', marginLeft: i !== 0 ? setSpace : '' }">
+            <view v-for="(item, k) of list" :key="k" class="item" :style="{
+               marginTop: k !== 0 ? setSpace : '',
+            }">
+               <view style="width: 100%;" class="grad-animation">
+                  <image class="img" :src="item.url" mode="widthFix" :lazy-load="true" :fade-show="true" :style="{
+                     borderRadius: round + 'px'
+                  }" @click="columnDetails(item)" />
+               </view>
+               <slot name="desc" />
             </view>
          </view>
       </view>
-      <uni-load-more v-if="loadMore" :status="`more`" />
+      <uni-load-more v-if="loadMore" :status="setStatusText" />
    </view>
 </template>
 
 <script setup lang="ts">
 import type { ImgType } from '@/type'
-import { randomColor, elementStyle, encryptData } from '@/utils'
+import { elementStyle, encryptData } from '@/utils'
 import { getJsonColumnData } from '@/api'
 
 const props = defineProps({
@@ -60,12 +60,20 @@ const props = defineProps({
    loadMore: { // 是否需要上拉刷新
       type: Boolean,
       default: false
+   },
+   index: {
+      type: Number,
+      default: null
    }
 })
 
 let waterfall: any = reactive<Array<[ImgType]>>([]) // 瀑布中的所有数据
-let listWidth = ref<number>(0) // 单列的宽度
-let _limit = ref<number>(0)
+let listWidth: number // 单列的宽度
+let _list: Array<ImgType> // 存储全部图片
+let _limit: number = props.limit - 0 // 记录加载数量
+let containerWidth = 0 // 瀑布宽度
+let clolumnArrHeight = [] // 记录瀑布流中各列的高度
+let loadStatus = ref<string>()
 
 onMounted(() => {
    nextTick(async () => {
@@ -74,7 +82,11 @@ onMounted(() => {
       } else if (props.room) {
          try {
             const data = await getJsonColumnData(`${props.room}.json`)
+            containerWidth = Number(await elementStyle('.waterfall', 'width'))
+            listWidth = (containerWidth - props.space * (props.column - 1)) / props.column
             waterFallLayout(data.list)
+            _list = data.list
+            if (_limit >= _list.length) loadStatus.value = 'noMore'
          } catch (err) {
             console.error(err)
          }
@@ -82,8 +94,9 @@ onMounted(() => {
    })
 })
 
-watch(() => props.limit, (nval: number, olval: number) => {
-   
+// 间隙
+const setSpace = computed(() => {
+   return props.space * 2 + 'rpx'
 })
 
 // 获取数组中最小值的下标
@@ -100,28 +113,47 @@ function findMinValueAndIndex(array: Array<number>): number {
    return minIndex;
 }
 // 设置瀑布流高度，并对图片进行分类摆放
-const waterFallLayout = async (list: any) => {
-   const containerWidth = Number(await elementStyle('.waterfall', 'width'))
-   // 等比缩放后的宽度
-   listWidth.value = (containerWidth - props.space * (props.column - 1)) / props.column
-   // 每列高度的记录容器
-   let tmp = []
+const waterFallLayout = (list: any) => {
    for (let i = 0; i < props.column; i++) {
-      tmp.push(0); waterfall.push([])
+      clolumnArrHeight.push(0); waterfall.push([])
    }
    // 将图片放入每一个列中
    list.forEach((item: any, index: number) => {
-      if (index >= props.limit) return
-      if (listWidth.value > 0) item.height = item.height * listWidth.value / item.width
+      if (index >= _limit) return loadStatus.value = 'noMore'
+      item.height = listWidth / item.ratio
       // 找到最矮的那列并将图片放入其中
-      const minIndex = findMinValueAndIndex(tmp)
+      const minIndex = findMinValueAndIndex(clolumnArrHeight)
       waterfall[minIndex].push(item)
-      tmp[minIndex] += item.height
+      clolumnArrHeight[minIndex] += item.height
    })
 }
+// 触发下拉加载
+uni.$on('wataerfall-loading', (_current: number) => {
+   if (_current !== props.index) return loadStatus.value = 'more'
+   if (_limit >= _list.length) return loadStatus.value = 'noMore'
+   loadStatus.value = 'loading'
+   const insertArr = _list.slice(_limit + 1, _limit + 7)
+   _limit += 6
+   inserToWaterfall(insertArr)
+})
+// 向瀑布流中追加数据
+function inserToWaterfall(arr: Array<ImgType>) {
+   arr.forEach((img: ImgType) => {
+      const minIndex = findMinValueAndIndex(clolumnArrHeight)
+      img.height = listWidth / img.ratio
+      waterfall[minIndex].push(img)
+      clolumnArrHeight[minIndex] += img.height
+   })
+   if (_limit >= _list.length) loadStatus.value = 'noMore'
+   else loadStatus.value = 'more'
+}
+// 设置底部加载文本
+const setStatusText = computed(() => {
+   return loadStatus.value
+})
 // 点击进入图片预览
 const columnDetails = (img: ImgType) => {
-   let pre_path:string
+   let pre_path: string
    const pages = getCurrentPages()
    if (!props.livekeep) pre_path = '/' + pages[pages.length - 1].route
    uni.navigateTo({
@@ -136,20 +168,26 @@ const columnDetails = (img: ImgType) => {
    min-height: 200rpx;
    box-sizing: border-box;
    overflow: hidden;
+
    .list-container {
       width: 100%;
       display: flex;
       margin: 0 auto;
    }
+
    .list {
       width: auto;
       overflow: hidden;
       box-sizing: border-box;
+
       .item {
          width: auto;
          line-height: 0;
          box-sizing: border-box;
          overflow: hidden;
+         display: flex;
+         flex-direction: column;
+
          .img {
             width: 100%;
          }

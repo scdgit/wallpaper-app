@@ -1,6 +1,6 @@
 <template>
    <view class="box">
-      <image class="image" :src="src" :mode="mode" :lazy-load="lazyLoad" @load="onLoad" />
+      <image class="image grad-animation" :src="src" :mode="mode" :lazy-load="lazyLoad"/>
       <view class="mask" :style="{backgroundImage: `url(${src})`}" />
    </view>
 </template>
@@ -21,12 +21,6 @@ defineProps({
       default: true
    }
 })
-
-const emits = defineEmits(['load'])
-// 图片加载完毕
-const onLoad = (e: Event) => {
-   emits('load', e)
-}
 </script>
 
 <style scoped lang="scss">
