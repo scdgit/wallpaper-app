@@ -25,4 +25,11 @@ export interface ImgType {
    width?: number
    room?: string // 存放图片的目录
    url?: string // 图片地址
+   love?: number // 收藏数
+}
+
+// 图片预览中上一张和下一张的类型
+export interface PreAndNextType {
+   pre: ImgType
+   next: ImgType
 }

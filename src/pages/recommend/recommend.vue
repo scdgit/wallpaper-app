@@ -1,40 +1,43 @@
 <template>
-   <view class="recommend" :style="{minHeight: windowHeight * 2 + 'rpx'}">
+   <view class="recommend" :style="{ minHeight: windowHeight * 2 + 'rpx' }">
       <!-- 搜索框 -->
       <view class="search-box">
          <view class="search">
             <view class="icon">
                <uni-icons type="search" size="30rpx" color="#606266" />
             </view>
-            <input class="uni-input" placeholder="AI插图"        
-               placeholder-class="inp-placeholder"
-            />
+            <input class="uni-input" placeholder="AI插图" placeholder-class="inp-placeholder" />
          </view>
       </view>
       <!-- 导航 -->
       <view class="nav">
-         <text v-for="(item, index) of range" :key="index" class="text"
-            :class="{active: navValue === item.value}"
-            :style="{marginLeft: index !== 0 ? '56rpx':0}"
-            @click="toggleNav(item.value)"
-         >{{ item.text }}</text>
-         <view class="icon">
+         <text v-for="(item, index) of range" :key="index" class="text" :class="{ active: navValue === item.value }"
+            :style="{ marginLeft: index !== 0 ? '56rpx' : 0 }" @click="toggleNav(item.value)">{{ item.text }}</text>
+         <view class="menu" :class="{ scroll: setFixed }" @click="openMenu">
             <uni-icons type="bars" size="16" />
          </view>
       </view>
       <!-- 内容区域 -->
       <view class="container">
-         <view v-for="(item, index) of range" :key="index"  class="nav-content"
-            :style="{ transform: `translateX(${-navValue * 100}%)`}"
-         >
+         <view v-for="(item, index) of range" :key="index" class="nav-content"
+            :style="{ transform: `translateX(${-navValue * 100}%)` }">
             <transition name="fade">
-               <WaterFallFlow v-show="navValue === index" :room="item.room" :column="2" :space="10" :limit="limit" :loadMore="true" :round="6" :index="index">
-                  <template #desc>
+               <WaterFallFlow v-show="navValue === index" :room="item.room" :column="2" :space="10" :limit="limit"
+                  :loadMore="true" :round="6" :index="index">
+                  <template #desc="desc">
                      <view class="desc-box">
-                        <view class="tag">{{ item.text }}</view>
+                        <view class="left">
+                           <view class="avatar">
+                              <img class="image" src="/src/static/avatar.png" alt="">
+                           </view>
+                           <view class="info">
+                              <text class="nickname">aikun</text>
+                              <text class="time">2023-7-12</text>
+                           </view>
+                        </view>
                         <view class="love">
-                           <uni-icons type="heart" size="20" color="#303133" />
-                           <text class="num">2.4k</text>
+                           <Love :target="desc.data" />
+                           <text class="num">{{ desc.data.love }}</text>
                         </view>
                      </view>
                   </template>
@@ -42,51 +45,96 @@
             </transition>
          </view>
       </view>
+      <!-- 菜单弹出层 -->
+      <uni-popup ref="popup" type="left">
+         <view class="menu-popup">
+            <text v-for="(item, index) of range" :key="index" class="text" :class="{active: navValue === index}"
+               @click="toggleNav(item.value, closeMenu)">{{ item.text }}</text>
+         </view>
+      </uni-popup>
    </view>
 </template>
 
 <script lang="ts" setup>
 import WaterFallFlow from '@/components/waterfall-flow.vue'
+import Love from '@/components/Love.vue'
 import type { ColumnType } from '@/type'
-import { getNavigationH } from '@/utils'
+import { initFavorite } from '@/hooks'
 
 let navValue = ref<number>(0)
 let mainData: any = reactive({})
 let windowHeight = ref<number>()
 const range = reactive([])
 let limit = ref<number>(6)
+let isFixed = ref<boolean>(false) // 菜单按钮定位
+const popup = ref(null);
 
 onLoad(() => {
+   initFavorite()
    mainData = uni.getStorageSync('DATABASE')
    mainData.column.forEach((element: ColumnType, index: number) => {
       range.push({ value: index, text: element.title, room: element.room })
-   });
+   })
 })
 
 // 导航切换
-const toggleNav = (val: number) => {
+const toggleNav = (val: number, cb?: () => void) => {
    navValue.value = val
+   cb && cb()
 }
+// 点击菜单中按钮时，屏幕滚动到顶部
+watch(() => navValue.value, (nval: number, olval: number) => {
+   if (nval !== olval) {
+      uni.pageScrollTo({ scrollTop: 0, duration:0 })
+   }
+})
 
 // 触发到达底部加载数据
 onReachBottom(() => {
    uni.$emit('wataerfall-loading', navValue.value)
 })
+
+// 页面滚动事件
+onPageScroll(({ scrollTop }) => {
+   // 显示菜单按钮
+   if (scrollTop >= 102) {
+      // 定位菜单
+      isFixed.value = true
+   } else {
+      isFixed.value = false
+   }
+})
+const setFixed = computed(() => {
+   return isFixed.value
+})
+
+// 打开菜单
+const openMenu = () => {
+   popup.value.open()
+}
+const closeMenu = () => {
+   popup.value.close()
+}
 </script>
 
 <style scoped lang="scss">
 /* 定义淡入淡出动画 */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+.fade-enter-active,
+.fade-leave-active {
+   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
-  opacity: 0;
+
+.fade-enter,
+.fade-leave-to {
+   opacity: 0;
 }
+
 .recommend {
    padding: 0 30rpx;
    overflow-x: hidden;
    box-sizing: border-box;
    overflow: hidden;
+
    .search-box {
       width: 690rpx;
       height: 56rpx;
@@ -97,6 +145,7 @@ onReachBottom(() => {
       overflow: hidden;
       margin-top: 16rpx;
       margin-bottom: 30rpx;
+
       .search {
          width: 100%;
          height: 100%;
@@ -105,19 +154,23 @@ onReachBottom(() => {
          background-color: #F7F9F9;
          display: flex;
          align-items: center;
+
          .icon {
             margin-right: 8rpx;
          }
+
          ::v-deep .uni-input-input {
             color: #BFC2CC;
             font-size: 26rpx;
          }
+
          ::v-deep .inp-placeholder {
             color: #BFC2CC;
             font-size: 26rpx
          }
       }
    }
+
    .nav {
       width: 100%;
       height: 58rpx;
@@ -125,26 +178,18 @@ onReachBottom(() => {
       box-sizing: border-box;
       margin-bottom: 30rpx;
       position: relative;
+
       .text {
          font-size: 28rpx;
          color: #303133;
-         position: relative;
          font-family: PingFangSC-Medium;
+         position: relative;
       }
-      .icon {
-         width: 94rpx;
-         height: 40rpx;
-         line-height: 40rpx;
-         background-image: linear-gradient(to right, transparen,#fff);
-         position: absolute;
-         right: 0;
-         top: 50%;
-         transform: translateY(-50%);
-         text-align: right;
-      }
+
       .active {
          color: #FF6D19;
       }
+
       .active::before {
          content: '';
          display: block;
@@ -157,13 +202,37 @@ onReachBottom(() => {
          left: 50%;
          transform: translateX(-50%);
       }
+
+      .menu {
+         width: 54rpx;
+         height: 40rpx;
+         line-height: 40rpx;
+         position: absolute;
+         right: 0;
+         top: 25%;
+         z-index: 999;
+         text-align: right;
+
+         &.scroll {
+            position: fixed;
+            top: 80rpx;
+            right: 28rpx;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0), #FF6D19);
+
+            ::v-deep .uni-icons {
+               color: #fff !important;
+            }
+         }
+      }
    }
+
    .container {
       width: 100%;
       min-height: 200px;
       display: flex;
       overflow-x: hidden;
       box-sizing: border-box;
+
       .nav-content {
          flex-shrink: 0;
          width: 100%;
@@ -172,28 +241,51 @@ onReachBottom(() => {
          position: relative;
          transition: all .35s ease-in-out;
          opacity: 1;
+
          .desc-box {
             height: 52rpx;
             line-height: 52rpx;
-            padding-top: 10rpx;
+            padding-top: 4rpx;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: #fff;
-            .tag {
-               width: 72rpx;
-               height: 36rpx;
-               padding: 2rpx;
-               line-height: 36rpx;
-               text-align: center;
-               font-size: 20rpx;
-               color: #FF6D19;
-               background-color: #FFF0E7;
-               border-radius: 16rpx;
+
+            .left {
+               height: 40rpx;
+               display: flex;
+               align-items: center;
+               .avatar {
+                  width: 40rpx;
+                  height: 100%;
+                  border-radius: 50%;
+                  overflow: hidden;
+                  margin-right: 4rpx;
+                  margin-left: 8rpx;
+                  .image {
+                     width: 100%;
+                     height: 100%;
+                  }
+               }
+               .info {
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  line-height: 20rpx;
+                  .nickname {
+                     font-size: 20rpx;
+                     color: #444;
+                  }
+                  .time {
+                     font-size: 16rpx;
+                  }
+               }
             }
+
             .love {
                display: flex;
                align-items: center;
+
                .num {
                   font-size: 20rpx;
                   color: #909399;
@@ -202,5 +294,31 @@ onReachBottom(() => {
          }
       }
    }
-}
-</style>
+
+   // 菜单弹出框
+   .menu-popup {
+      width: 132rpx;
+      height: 100%;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10rpx;
+
+      .text {
+         display: block;
+         width: 80%;
+         height: 60rpx;
+         line-height: 60rpx;
+         text-align: center;
+         color: #000;
+         font-size: 24rpx;
+         margin: 10rpx 0;
+         border-radius: 10rpx;
+         &.active {
+            background-color: #FF6D19;
+            color: #fff;
+         }
+      }
+   }
+}</style>

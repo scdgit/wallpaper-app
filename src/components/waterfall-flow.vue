@@ -11,7 +11,7 @@
                      borderRadius: round + 'px'
                   }" @click="columnDetails(item)" />
                </view>
-               <slot name="desc" />
+               <slot name="desc" :data="item"/>
             </view>
          </view>
       </view>
@@ -23,6 +23,7 @@
 import type { ImgType } from '@/type'
 import { elementStyle, encryptData } from '@/utils'
 import { getJsonColumnData } from '@/api'
+import { initPreviewData } from '@/hooks'
 
 const props = defineProps({
    room: { // 哪一个仓库地址(图片)
@@ -77,13 +78,17 @@ let loadStatus = ref<string>()
 
 onMounted(() => {
    nextTick(async () => {
+      // 换算后每个图片的宽度
+      containerWidth = Number(await elementStyle('.waterfall', 'width'))
+      listWidth = (containerWidth - props.space * (props.column - 1)) / props.column
+      // 传入的是数据列表[不需要发送请求]
       if (props.data.length > 0 && !props.room) {
-         waterFallLayout(props.data)
+         _list = props.data
+         waterFallLayout(_list)
       } else if (props.room) {
+         // 需要发送请求获取数据
          try {
             const data = await getJsonColumnData(`${props.room}.json`)
-            containerWidth = Number(await elementStyle('.waterfall', 'width'))
-            listWidth = (containerWidth - props.space * (props.column - 1)) / props.column
             waterFallLayout(data.list)
             _list = data.list
             if (_limit >= _list.length) loadStatus.value = 'noMore'
@@ -132,9 +137,11 @@ uni.$on('wataerfall-loading', (_current: number) => {
    if (_current !== props.index) return loadStatus.value = 'more'
    if (_limit >= _list.length) return loadStatus.value = 'noMore'
    loadStatus.value = 'loading'
-   const insertArr = _list.slice(_limit + 1, _limit + 7)
+   const insertArr = _list.slice(_limit, _limit + 6)
    _limit += 6
-   inserToWaterfall(insertArr)
+   setTimeout(() => {
+      inserToWaterfall(insertArr)
+   }, 500)
 })
 // 向瀑布流中追加数据
 function inserToWaterfall(arr: Array<ImgType>) {
@@ -156,6 +163,8 @@ const columnDetails = (img: ImgType) => {
    let pre_path: string
    const pages = getCurrentPages()
    if (!props.livekeep) pre_path = '/' + pages[pages.length - 1].route
+   // 初始化上下滑动的数据
+   initPreviewData(_list)
    uni.navigateTo({
       url: `/subpackage/wallpaper?img=${encryptData(img)}&pre_path=${pre_path}`
    })

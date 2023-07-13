@@ -1,7 +1,7 @@
 <template>
    <view class="container">
       <view class="favorites">
-         <WaterFallFlow :data="useFavorites" :column="3" :space="4" :livekeep="false"/>
+         <WaterFallFlow :data="useFavorites" :column="2" :space="4" :livekeep="false"/>
       </view>
       <view class="back" @click="goBack">
          <uni-icons type="arrow-left" size="30" color="skyblue" />&nbsp;返回
@@ -12,10 +12,10 @@
 <!-- 收藏夹页面-分包 -->
 <script lang="ts" setup>
 import WaterFallFlow from '@/components/waterfall-flow.vue'
-import { useFavorites } from '@/hooks'
+import { useFavorites, initFavorite } from '@/hooks'
 
 onLoad(() => {
-   
+   initFavorite()
 })
 
 // 返回上一级

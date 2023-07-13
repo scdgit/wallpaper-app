@@ -32,7 +32,7 @@ defineProps({
    background-repeat: repeat-y;
    position: relative;
    .image {
-      width: 96%;
+      width: 100%;
       // display: none;
       position: absolute;
       top: 0;
