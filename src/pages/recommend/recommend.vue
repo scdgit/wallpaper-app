@@ -27,12 +27,13 @@
                   <template #desc="desc">
                      <view class="desc-box">
                         <view class="left">
-                           <view class="avatar">
-                              <img class="image" src="/src/static/avatar.png" alt="">
+                           <view class="avatar grad-animation">
+                              <img v-if="desc.data.avatar" class="image" :src="`${AVATAR_URL}/${desc.data.avatar}`" lazy-load />
+                              <img v-else class="image" src="/src/static/avatar.png" lazy-load />
                            </view>
                            <view class="info">
-                              <text class="nickname">aikun</text>
-                              <text class="time">2023-7-12</text>
+                              <text class="nickname">{{ desc.data.nickname }}</text>
+                              <text class="time">{{ desc.data.time }}</text>
                            </view>
                         </view>
                         <view class="love">
@@ -60,6 +61,7 @@ import WaterFallFlow from '@/components/waterfall-flow.vue'
 import Love from '@/components/Love.vue'
 import type { ColumnType } from '@/type'
 import { initFavorite } from '@/hooks'
+import { AVATAR_URL } from '@/config'
 
 let navValue = ref<number>(0)
 let mainData: any = reactive({})

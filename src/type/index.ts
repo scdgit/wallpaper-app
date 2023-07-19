@@ -1,13 +1,6 @@
 /**
  * 轮播图的类型定义
  */
-export interface BannerType {
-   file: string // 图片地址
-   path?: string // 跳转连接
-   title?: string // 标题
-   describe?: string // 描述信息
-   url?: string // 完整链接
-}
 
 // 单项专栏类型
 export interface ColumnType {
@@ -26,10 +19,27 @@ export interface ImgType {
    room?: string // 存放图片的目录
    url?: string // 图片地址
    love?: number // 收藏数
+   avatar?: string // 上传者头像
+   nickname?: string // 上传者昵称
 }
 
-// 图片预览中上一张和下一张的类型
-export interface PreAndNextType {
-   pre: ImgType
-   next: ImgType
+// 扩展功能api的类型
+export interface ExpansionApisType {
+   title: string // 接口标题
+   icon?: string // 图标
+   host: string // 主机
+   api: string // 接口请求地址
+   proxy: string // 代理地址
+   method: 'GET' | 'OPTIONS' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'CONNECT' // 请求类型
+   target: string // 目标属性
+}
+
+// 书本类型
+export interface BookType {
+   author: string // 作者
+   bg: string // 背景图片
+   bookname: string // 书名
+   chapters: number // 章节数
+   introduction: string // 简述
+   numberOfFiles: number // 全部页数
 }

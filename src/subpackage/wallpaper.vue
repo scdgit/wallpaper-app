@@ -7,7 +7,8 @@
                <MyImage :src="item.url" mode="widthFix" />
                <view class="tool">
                   <view class="tool-item">
-                     <img class="avatar" src="/src/static/avatar.png" alt="">
+                     <img v-if="item.avatar" class="avatar grad-animation" :src="`${AVATAR_URL}/${item.avatar}`" lazy-load />
+                     <img v-else class="avatar" src="@static/avatar.png" lazy-load />
                   </view>
                   <view class="tool-item">
                      <Love :target="item" type="heart-filled" color="#fff"/>
@@ -48,13 +49,13 @@
 import MyImage from '@/components/MyImage.vue'
 import Love from '@/components/Love.vue'
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
-import { HOST } from '@/config'
+import { HOST, AVATAR_URL } from '@/config'
 import type { ImgType } from '@/type'
 import { decryptData, saveImgToAlbum } from '@/utils'
-import { useFavorites, updateFavorites, previewTargetIndex, usePreviewData, initFavorite } from '@/hooks'
+import { useFavorites, updateFavorites, previewTargetIndex, usePreviewData } from '@/hooks'
 
 let img: ImgType // 图片对象
-const deviceType = ref<string>('') // 当前设备类型
+const deviceType = uni.getStorageSync('deviceType') // 当前设备类型
 const isCollect = ref<boolean>(false) // 是否收藏
 let pre_path = '' // 跳转前的页面
 let duration = ref<number>(500) // 动画时长
@@ -63,7 +64,6 @@ let index = ref<number>(0) // 轮播图位置
 onLoad((options: any) => {
    img = options.img ? decryptData(options.img) : null
    pre_path = options.pre_path
-   deviceType.value = uni.getStorageSync('deviceType')
    index.value = previewTargetIndex(img)
    // 判断是否已收藏
    useFavorites.forEach((element: ImgType) => {

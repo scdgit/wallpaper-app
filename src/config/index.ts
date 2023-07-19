@@ -10,3 +10,7 @@ export const HOST = 'http://192.168.101.7:5173'
 export const WEB_IMG_API = '/imgapi'
 // 使用说明文档地址
 export const USE_MANUAL = '/imgapi/img/doc/instructions.pdf'
+// 头像地址
+export const AVATAR_URL = `${BASE_URL}/avatar`
+// proxy api
+export const PROXY_API = '/imgapi'

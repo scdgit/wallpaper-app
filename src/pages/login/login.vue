@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 // import { encryptData } from '@/utils'
-import { initMainJsonData } from '@/api'
+import { initMainJsonData, getExpansionApi, getNovelData } from '@/api'
 import { BASE_URL } from '@/config'
 uni.showLoading({ title: '加载中...' })
 
@@ -27,6 +27,13 @@ onLoad(async () => {
          }
       })
    }
+   // 获取首页扩展功能的接口列表
+   if (!uni.getStorageSync('EXPANSIONAPI')) {
+      const expansionApi: any = await getExpansionApi()
+      uni.setStorageSync('EXPANSIONAPI', expansionApi.data.expansionApi)
+   }
+   const novels = await getNovelData()
+   uni.setStorageSync('NOVELS', novels)
 })
 
 const imgLoad = () => {

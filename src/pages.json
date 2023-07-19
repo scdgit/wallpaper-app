@@ -30,6 +30,12 @@
 			"style": {
 				"navigationBarTitleText": "loading"
 			}
+		},
+		{
+			"path": "pages/novel/novel",
+			"style": {
+				"navigationBarTitleText": "小说"
+			}
 		}
 	],
 	"globalStyle": {
@@ -37,13 +43,13 @@
 		"navigationBarTitleText": "色彩墙",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#F8F8F8",
-      "navigationStyle": "custom"
+		"navigationStyle": "custom"
 	},
 	"tabBar": {
 		"color": "#8a8a8a",
 		"selectedColor": "#FF6D19",
 		"backgroundColor": "#fff",
-      "borderStyle": "white",
+		"borderStyle": "white",
 		"list": [
 			{
 				"pagePath": "pages/index/index",
@@ -89,6 +95,12 @@
 						"navigationBarTitleText": "我的收藏",
 						"navigationStyle": "default",
 						"backgroundColor": "#000"
+					}
+				},
+				{
+					"path": "book-detail",
+					"style": {
+						"navigationBarTitleText": "book-detail"
 					}
 				}
 			]

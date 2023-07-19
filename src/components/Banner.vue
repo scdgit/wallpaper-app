@@ -1,9 +1,9 @@
 <template>
    <view class="swoper-box">
-      <swiper class="swiper" :circular="circular" :autoplay="setAutoplay" @change="toggleCurrent">
+      <swiper class="swiper grad-animation" :circular="circular" :autoplay="setAutoplay" @change="toggleCurrent">
          <swiper-item v-for="(item, index) of data" :key="index" @click="columnDetails(item)">
             <view class="swiper-item uni-bg-red">
-               <image :src="item.url" class="image" mode="widthFix"/>
+               <image :src="item.url" class="image" mode="widthFix" lazy-load/>
             </view>
          </swiper-item>
       </swiper>
@@ -13,15 +13,16 @@
    </view>
 </template>
 <script setup lang="ts">
-import type { BannerType, ImgType } from '@/type'
+import type { ImgType } from '@/type'
 import { encryptData } from '@/utils'
+import { initPreviewData } from '@/hooks'
 
 const props = defineProps({
    data: {
-      type: Array<BannerType | BannerType>,
+      type: Array<ImgType>,
       default: []
    },
-   livekeep: {
+   livekeep: { // 跳转路由时是否保留当前页面
       type: Boolean,
       default: true
    },
@@ -50,10 +51,11 @@ const toggleCurrent = (e: any) => {
    currentPoint.value = e.detail.current
 }
 // 预览图片
-const columnDetails = (img: ImgType | BannerType) => {
+const columnDetails = (img: ImgType) => {
    let pre_path: string
    const pages = getCurrentPages()
    if (!props.livekeep) pre_path = '/' + pages[pages.length - 1].route
+   initPreviewData(props.data)
    uni.navigateTo({
       url: `/subpackage/wallpaper?img=${encryptData(img)}&pre_path=${pre_path}`
    })

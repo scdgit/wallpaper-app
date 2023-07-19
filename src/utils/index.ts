@@ -186,3 +186,17 @@ export function getNavigationH() {
    const navigationBarHeight = statusBarHeight + defaultNavBarHeight;
    return navigationBarHeight
 }
+
+/**
+ * 获取目标对象结构层级中的数据
+ * @param obj [object] 目标对象
+ * @param str [string] 对象层级结构 data/url -> Object[data][url]
+ * @return [any] 目标数据
+ */
+export const targetObjData = (obj: object, target: string): string => {
+   const attrArr = target.split('/')
+   attrArr.forEach((att: string) => {
+      obj = obj[att]
+   })
+   return obj + ''
+}

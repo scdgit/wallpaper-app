@@ -17,13 +17,13 @@
 		<view class="center">
 			<view class="dolownd-detail">
 				<view class="detail-t">
-					<text class="text-1">剩余下载次数</text>
+					<text class="text-1">剩余积分</text>
 					<view class="add">去增加
                   <uni-icons type="fire" size="30rpx" color="#fff" style="margin-left: 2rpx;"/>
 					</view>
 				</view>
 				<view class="count">9999</view>
-				<view class="describe">点击去添加按钮可以增加下载次数，每日登陆免费赠送两次</view>
+				<view class="describe">点击去添加按钮完成预览任务获取积分，每日登陆免费赠送2个积分点</view>
 			</view>
 		</view>
 		<!-- 扩展功能 -->
