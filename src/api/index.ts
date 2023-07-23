@@ -106,3 +106,17 @@ export const novelCurrentPageContent = (num: number, bookname: string): Promise<
       })
    })
 }
+
+/**
+ * 解析订单是否支付成功
+ * @param tradeNo 商户号
+ * @param outTradeNo 订单号
+ * @returns Promise
+ */
+export const queryPayOrder = (outTradeNo: string, tradeNo: string) => {
+   return uni.request({
+      url: '/api/payment/queryOrder',
+      method: 'POST',
+      data: { outTradeNo, tradeNo }
+   })
+}

@@ -1,274 +1,224 @@
 <template>
-	<view class="personal-page page">
-		<!-- 用户信息 -->
-		<view class="user-info">
-			<view class="user-base">
-				<image :src="avatar || `/static/avatar.png`"  class="avatar" mode="aspectFill"/>
-				<text class="name">{{ nickname }}</text>
-			</view>
-			<button class="edit" @click="doEdit">编辑信息{{ isEdit ? '☹️' : '☺️' }}</button>
-			<view class="edit-options" :class="{ open: isEdit, close: !isEdit }">
-				<view class="options-item" @click="editAvatar">🎅<text class="text">头像</text></view>
-				<view class="line" />
-				<view class="options-item" @click="editNickname">☘️<text class="text">昵称</text></view>
-			</view>
-		</view>
-		<!-- 下载详情 -->
-		<view class="center">
-			<view class="dolownd-detail">
-				<view class="detail-t">
-					<text class="text-1">剩余积分</text>
-					<view class="add">去增加
-                  <uni-icons type="fire" size="30rpx" color="#fff" style="margin-left: 2rpx;"/>
-					</view>
-				</view>
-				<view class="count">9999</view>
-				<view class="describe">点击去添加按钮完成预览任务获取积分，每日登陆免费赠送2个积分点</view>
-			</view>
-		</view>
-		<!-- 扩展功能 -->
-		<view class="extend">
-			<uni-list>
-				<uni-list-item title="🌸&nbsp;我的收藏" showArrow clickable @click="goTo('/subpackage/favorites')"/>
-            <a v-if="deviceType === 'web'" :href="USE_MANUAL" class="alink">
-				   <uni-list-item title="️📄&nbsp;使用说明" showArrow clickable/>
-            </a>
-            <uni-list-item v-else title="️📄&nbsp;使用说明" showArrow clickable @click="documentPreview(USE_MANUAL.replace('/imgapi/img', BASE_URL))"/>
-				<uni-list-item title="⚙️️&nbsp;主题设置" showArrow clickable />
-				<uni-list-item title="☃️&nbsp;清除数据" showArrow clickable @click="loginOut"/>
-			</uni-list>
-		</view>
-	</view>
+   <view class="personal-page page" :style="{ height: windowHeight }">
+      <!-- 用户信息 -->
+      <view class="user-info">
+         <image :src="avatar || `/static/avatar.png`" class="avatar" mode="aspectFill" @click="editAvatar" />
+         <text class="name" @click="editNickname">{{ nickname }}</text>
+      </view>
+      <!-- 方块列表 -->
+      <view class="blocak-list">
+         <!-- 会员类型 -->
+         <view class="item" style="background-color:#FF6B03;">
+            <text class="title">类型</text>
+            <text class="text">---</text>
+         </view>
+         <view class="item" style="background-color:#1093ED;">
+            <text class="title">到期日</text>
+            <text class="text">---</text>
+         </view>
+         <!-- 积分 -->
+         <view class="item" style="background-color:#EEC60A;">
+            <text class="title">积分</text>
+            <text class="text">999</text>
+         </view>
+      </view>
+      <!-- 按钮栏 -->
+      <view class="btn-box">
+         <view class="btn" @click="goTo('/subpackage/integral')">
+            <svg-icon icon="recharge" :size="20" color="#10A6E2" />
+            <text class="text">积分获取</text>
+            <view class="arraw">
+               <svg-icon icon="arrow-r" :size="15" color="#999" />
+            </view>
+         </view>
+         <view class="btn">
+            <svg-icon icon="favorites" :size="20" color="#EEC60A" />
+            <text class="text">收藏夹</text>
+            <view class="arraw">
+               <svg-icon icon="arrow-r" :size="15" color="#999" />
+            </view>
+         </view>
+         <view class="btn">
+            <svg-icon icon="about" :size="20" color="#1093ED" />
+            <text class="text">关于我们</text>
+            <view class="arraw">
+               <svg-icon icon="arrow-r" :size="15" color="#999" />
+            </view>
+         </view>
+         <view class="btn">
+            <svg-icon icon="set" :size="20" color="#6C7084" />
+            <text class="text">设置</text>
+            <view class="arraw">
+               <svg-icon icon="arrow-r" :size="15" color="#999" />
+            </view>
+         </view>
+      </view>
+   </view>
 </template>
 
 <script setup lang="ts">
 import { USE_MANUAL, BASE_URL } from '@/config'
-import { documentPreview } from '@/utils'
+import { documentPreview, getWindowHeight } from '@/utils'
 
 // 是否处于编辑状态
-let isEdit = ref<boolean>(false)
-let nickname = ref<string>(uni.getStorageSync('nickname') || '带完善')
-let avatar = ref<string>(uni.getStorageSync('avatar'))
-let deviceType = ref<string>(uni.getStorageSync('deviceType'))
+const isEdit = ref<boolean>(false)
+const nickname = ref<string>(uni.getStorageSync('nickname') || '带完善')
+const avatar = ref<string>(uni.getStorageSync('avatar'))
+const windowHeight = ref<string>()
 
-// 信息编辑
-const doEdit = () => {
-	isEdit.value = !isEdit.value
-}
+onLoad(() => {
+   getWindowHeight().then((H: string) => {
+      windowHeight.value = H
+   })
+})
+
 //编辑头像
 const editAvatar = () => {
-	isEdit.value = false
-	uni.showActionSheet({ itemList: ['拍照', '相册'] }).then((res) => {
-		if (res.tapIndex === 0) {
-			// 拍照操作
-			uni.chooseImage({ count: 1, sourceType: ['camera'] }).then((imageObj) => {
-				uni.showLoading({title: '上传中...'})
-				setTimeout(() => {
-					avatar.value = imageObj.tempFilePaths[0]
-					uni.setStorageSync('avatar', avatar.value)
-					uni.hideLoading()
-				}, 1000)
-			})
-		} else {
-			// 选择相册
-			uni.chooseImage({ count: 1, sourceType: ['album'] }).then((imageObj) => {
-				uni.showLoading({title: '上传中...'})
-				setTimeout(() => {
-					avatar.value = imageObj.tempFilePaths[0]
-					uni.setStorageSync('avatar', avatar.value)
-					uni.hideLoading()
-				}, 1000)
-			})
-		}
-	}).catch(() => {})
+   isEdit.value = false
+   uni.showActionSheet({ itemList: ['拍照', '相册'] }).then((res) => {
+      if (res.tapIndex === 0) {
+         // 拍照操作
+         uni.chooseImage({ count: 1, sourceType: ['camera'] }).then((imageObj) => {
+            uni.showLoading({ title: '上传中...' })
+            setTimeout(() => {
+               avatar.value = imageObj.tempFilePaths[0]
+               uni.setStorageSync('avatar', avatar.value)
+               uni.hideLoading()
+            }, 1000)
+         })
+      } else {
+         // 选择相册
+         uni.chooseImage({ count: 1, sourceType: ['album'] }).then((imageObj) => {
+            uni.showLoading({ title: '上传中...' })
+            setTimeout(() => {
+               avatar.value = imageObj.tempFilePaths[0]
+               uni.setStorageSync('avatar', avatar.value)
+               uni.hideLoading()
+            }, 1000)
+         })
+      }
+   }).catch(() => { })
 }
 //编辑昵称
 const editNickname = () => {
-	uni.showModal({ editable: true, placeholderText: '请输入昵称' }).then((inp: any) => {
+   uni.showModal({ editable: true, placeholderText: '请输入昵称' }).then((inp: any) => {
       if (!inp.content) return // 取消编辑
-		if (!inp.content.trim()) return uni.showToast({title: '内容不能为空', icon: 'error'})
-		uni.showLoading({title: '上传中...'})
-		setTimeout(() => {
-			nickname.value = inp.content
-			uni.setStorageSync('nickname', nickname.value)
-			uni.hideLoading()
-		}, 1000)
-	})
-	isEdit.value = false
+      if (!inp.content.trim()) return uni.showToast({ title: '内容不能为空', icon: 'error' })
+      uni.showLoading({ title: '上传中...' })
+      setTimeout(() => {
+         nickname.value = inp.content
+         uni.setStorageSync('nickname', nickname.value)
+         uni.hideLoading()
+      }, 1000)
+   })
+   isEdit.value = false
 }
 // 跳转路由
 const goTo = (fullpath: string) => {
-   if (fullpath === '/subpackage/favorites' && !uni.getStorageSync('favorites')) {
-      uni.showToast({title: '啥都没有', icon: 'none'})
-      return
-   }
-   uni.navigateTo({url: fullpath})
+   uni.navigateTo({ url: fullpath })
 }
 // 清除数据
 const loginOut = () => {
-	uni.showModal({ 
-		title: '是否清除所有数据？',
-		success({confirm}) {
-			confirm && uni.clearStorage()
-			confirm && uni.showToast({title: '清除成功'})
-         uni.redirectTo({url: '/pages/login/login'})
-		},
-	})
+   uni.showModal({
+      title: '是否清除所有数据？',
+      success({ confirm }) {
+         confirm && uni.clearStorage()
+         confirm && uni.showToast({ title: '清除成功' })
+         uni.redirectTo({ url: '/pages/login/login' })
+      },
+   })
 }
 </script>
 
 <style lang="scss" scoped>
 .personal-page {
-	//用户信息
-	.user-info {
-		width: 100%;
-		padding: 28rpx;
-		box-sizing: border-box;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		background-color: #efefef;
+   background-color: #F8F8F8;
+   box-sizing: border-box;
+   overflow-y: scroll;
+   overflow-x: hidden;
 
-		// 用户的基本信息
-		.user-base {
-			flex: 1;
-			display: flex;
-			align-items: center;
+   //用户信息
+   .user-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 80rpx;
+      margin-top: 40rpx;
 
-			.avatar {
-				width: 108rpx;
-				height: 108rpx;
-				border-radius: 50%;
-				margin-right: 28rpx;
-				margin-left: 16rpx;
-				border: 2rpx solid #333;
-			}
-
-			.name {
-				font-size: 32rpx;
-				font-weight: 500;
-			}
-		}
-
-		// 编辑信息按钮
-		.edit {
-			width: 128rpx;
-			line-height: 48rpx;
-			font-size: 20rpx;
-			border-radius: 16rpx;
-			border: 2rpx solid #707070;
-			font-weight: 400;
-			padding: 0;
-		}
-
-		// 编辑信息的选项
-		.edit-options {
-			width: 130rpx;
-			height: auto;
-			position: fixed;
-			top: 130rpx;
-			right: 28rpx;
-			color: #fff;
-			// 上角标
-			&::before {
-				display: block;
-				position: absolute;
-				content: '';
-				border: 10rpx solid transparent;
-				border-bottom-color: #F67C3A;
-				top: 0;
-				left: 50%;
-				transform: translate(-50%, -100%);
-			}
-			&.open {
-				height: auto;
-			}
-
-			&.close {
-				// height: 0;
-				display: none;
-			}
-
-			.options-item {
-				font-size: 28rpx;
-				line-height: 60rpx;
-				text-align: center;
-				background-color: #F67C3A;
-				border-radius: 10rpx;
-
-				.text {
-					margin-left: 5rpx;
-					font-size: 20rpx;
-				}
-			}
-			// 线
-			.line {
-				width: 96%;
-				height: 2rpx;
-				margin: 0 auto;
-				background-color: rgba(0,0,0, 0.3);
-			}
-		}
-	}
-
-	.center {
-		width: 100%;
-		padding: 0 28rpx;
-		box-sizing: border-box;
-		margin: 20rpx 0;
-
-		//下载详情
-		.dolownd-detail {
-			width: 100%;
-			background: linear-gradient(134deg, #7E27EE 0%, #4323A7 100%);
-			border-radius: 14rpx;
-			margin: 0 auto;
-			color: #fff;
-			padding: 28rpx;
-			box-sizing: border-box;
-
-			.detail-t {
-				display: flex;
-				justify-content: space-between;
-				color: #fff;
-				font-weight: 400;
-
-				.text-1 {
-					font-size: 24rpx;
-				}
-
-				.add {
-					display: flex;
-					font-size: 20rpx;
-				}
-			}
-
-			.count {
-				font-size: 48rpx;
-				font-weight: bold;
-				margin-top: 12rpx;
-				margin-bottom: 24rpx;
-			}
-
-			.describe {
-				font-size: 18rpx;
-				font-weight: 300;
-				color: #DBDBDB;
-			}
-		}
-	}
-	//扩展部分
-	.extend {
-		width: 100%;
-		padding: 0 28rpx;
-		box-sizing: border-box;
-		font-size: 24rpx;
-      .alink {
-         text-decoration: none;
+      .avatar {
+         width: 160rpx;
+         height: 160rpx;
+         border-radius: 50%;
+         border: 1rpx solid #333;
       }
-      .add {
+
+      .name {
+         font-size: 32rpx;
+         color: #1D1E1F;
+         margin-top: 20rpx;
+      }
+   }
+
+   // 方块列表
+   .blocak-list {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40rpx;
+      box-sizing: border-box;
+      margin-bottom: 80rpx;
+
+      .item {
+         width: 196rpx;
+         height: 164rpx;
+         border-radius: 12rpx;
+         color: #fff;
          display: flex;
+         flex-direction: column;
          align-items: center;
+         justify-content: center;
+
+         .title {
+            font-size: 24rpx;
+            margin-bottom: 8rpx;
+         }
+
+         .text {
+            font-size: 32rpx;
+         }
       }
-	}
-}</style>
+   }
+
+   // 按钮栏
+   .btn-box {
+      width: 100%;
+      padding: 0 40rpx;
+      box-sizing: border-box;
+
+      .btn {
+         position: relative;
+         width: 670rpx;
+         height: 128rpx;
+         margin-bottom: 20rpx;
+         display: flex;
+         justify-content: flex-start;
+         align-items: center;
+         padding: 0 40rpx;
+         box-sizing: border-box;
+         color: #333333;
+         background-color: #fff;
+         &:active { background: #efefef; }
+         .text {
+            margin-left: 24rpx;
+         }
+         .arraw {
+            position: absolute;
+            top: 50%;
+            right: 40rpx;
+            transform: translateY(-50%);
+         }
+      }
+   }
+}
+</style>

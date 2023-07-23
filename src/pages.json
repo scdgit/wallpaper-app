@@ -100,7 +100,19 @@
 				{
 					"path": "book-detail",
 					"style": {
-						"navigationBarTitleText": "book-detail"
+						"navigationBarTitleText": "书本详情"
+					}
+				},
+				{
+					"path": "payment",
+					"style": {
+						"navigationBarTitleText": "支付页面"
+					}
+				},
+				{
+					"path": "integral",
+					"style": {
+						"navigationBarTitleText": "积分获取"
 					}
 				}
 			]

@@ -1,5 +1,5 @@
 <template>
-   <view class="recommend" :style="{ minHeight: windowHeight * 2 + 'rpx' }">
+   <view class="recommend">
       <!-- 搜索框 -->
       <view class="search-box">
          <view class="search">
@@ -65,7 +65,6 @@ import { AVATAR_URL } from '@/config'
 
 let navValue = ref<number>(0)
 let mainData: any = reactive({})
-let windowHeight = ref<number>()
 const range = reactive([])
 let limit = ref<number>(6)
 let isFixed = ref<boolean>(false) // 菜单按钮定位

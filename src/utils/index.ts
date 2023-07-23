@@ -188,6 +188,25 @@ export function getNavigationH() {
 }
 
 /**
+ * 获取页面可视区域的高度
+ * @returns 页面中间可视区域的高度
+ */
+export const getWindowHeight = (): Promise<string> => {
+   return new Promise((resolve, reject) => {
+      let H: string
+      uni.getSystemInfo({
+         success: (res) => {
+            H = res.windowHeight - 50 + 'px'
+            resolve(H)
+         },
+         fail: err => {
+            reject(err)
+         }
+      })
+   })
+}
+
+/**
  * 获取目标对象结构层级中的数据
  * @param obj [object] 目标对象
  * @param str [string] 对象层级结构 data/url -> Object[data][url]

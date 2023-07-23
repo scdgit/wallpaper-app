@@ -73,7 +73,6 @@ const toggleTheme = (type: string) => {
    font-size: 34rpx;
    padding: 20rpx;
    line-height: 50rpx;
-
    // 亮色
    background-color: #ccc;
    color: #555;
@@ -99,6 +98,7 @@ const toggleTheme = (type: string) => {
       width: 100%;
       min-height: 100vh;
       box-sizing: border-box;
+      font-family: "新宋体";
 
       .btn {
          position: absolute;
