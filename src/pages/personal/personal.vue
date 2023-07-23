@@ -1,5 +1,5 @@
 <template>
-   <view class="personal-page page" :style="{ height: windowHeight }">
+   <view v-if="token" class="personal-page page" :style="{ height: windowHeight }">
       <!-- 用户信息 -->
       <view class="user-info">
          <image :src="avatar || `/static/avatar.png`" class="avatar" mode="aspectFill" @click="editAvatar" />
@@ -54,7 +54,11 @@
          </view>
       </view>
    </view>
-</template>
+   <view v-else class="to-login" :style="{ height: windowHeight }">  
+      <svg-icon icon="warn" :size="60" color="red"/>
+      <view class="login-btn" @click="goTo('/subpackage/login-user')">去登录</view>
+   </view>
+</template> 
 
 <script setup lang="ts">
 import { USE_MANUAL, BASE_URL } from '@/config'
@@ -65,6 +69,7 @@ const isEdit = ref<boolean>(false)
 const nickname = ref<string>(uni.getStorageSync('nickname') || '带完善')
 const avatar = ref<string>(uni.getStorageSync('avatar'))
 const windowHeight = ref<string>()
+const token = ref<string>(uni.getStorageSync('token')) // 登录授权
 
 onLoad(() => {
    getWindowHeight().then((H: string) => {
@@ -218,6 +223,33 @@ const loginOut = () => {
             right: 40rpx;
             transform: translateY(-50%);
          }
+      }
+   }
+}
+
+.to-login {
+   width: 100%;
+   background-color: #F8F8F8;
+   padding: 0 40rpx;
+   box-sizing: border-box;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   .login-btn {
+      width: 100%;
+      height: 100rpx;
+      background-color: #31A7EA;
+      border-radius: 10rpx;
+      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+      font-size: 30rpx;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      line-height: 100rpx;
+      margin-top: 80rpx;
+      &:active {
+         background-color: rgb(39, 148, 211);
       }
    }
 }

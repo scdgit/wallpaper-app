@@ -114,6 +114,12 @@
 					"style": {
 						"navigationBarTitleText": "积分获取"
 					}
+				},
+				{
+					"path": "login-user",
+					"style": {
+						"navigationBarTitleText": "login-user"
+					}
 				}
 			]
 		}
