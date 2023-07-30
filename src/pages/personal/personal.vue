@@ -1,9 +1,83 @@
+<script setup lang="ts">
+import { USE_MANUAL, BASE_URL } from '@/config'
+import { documentPreview, getWindowHeight } from '@/utils'
+import type { UserType } from '@/type'
+
+const initUser = {
+   id: null,
+   nickname: '',
+   avatar: '',
+   integral: null
+}
+
+// 是否处于编辑状态
+const isEdit = ref<boolean>(false)
+const windowHeight = ref<string>()
+const token = ref<string>(null) // 登录授权
+let userinfo = reactive<UserType>(initUser)
+
+onLoad(() => {
+   token.value = uni.getStorageSync('token')
+   userinfo = uni.getStorageSync('userinfo') ? JSON.parse(uni.getStorageSync('userinfo')) : initUser
+   getWindowHeight().then((H: number) => {
+      windowHeight.value = H + 'px'
+   })
+})
+
+//编辑头像
+const editAvatar = () => {
+   isEdit.value = false
+   uni.showActionSheet({ itemList: ['拍照', '相册'] }).then((res) => {
+      if (res.tapIndex === 0) {
+         // 拍照操作
+         uni.chooseImage({ count: 1, sourceType: ['camera'] }).then((imageObj) => {
+            uni.showLoading({ title: '上传中...' })
+            setTimeout(() => {
+               userinfo.avatar = imageObj.tempFilePaths[0]
+               uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+               uni.hideLoading()
+            }, 1000)
+         })
+      } else {
+         // 选择相册
+         uni.chooseImage({ count: 1, sourceType: ['album'] }).then((imageObj) => {
+            uni.showLoading({ title: '上传中...' })
+            setTimeout(() => {
+               userinfo.avatar = imageObj.tempFilePaths[0]
+               uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+               uni.hideLoading()
+            }, 1000)
+         })
+      }
+   }).catch(() => { })
+}
+//编辑昵称
+const editNickname = () => {
+   uni.showModal({ editable: true, placeholderText: '请输入昵称' }).then((inp: any) => {
+      if (!inp.content) return // 取消编辑
+      if (!inp.content.trim()) return uni.showToast({ title: '内容不能为空', icon: 'error' })
+      uni.showLoading({ title: '上传中...' })
+      setTimeout(() => {
+         userinfo.nickname = inp.content
+         uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+         uni.hideLoading()
+      }, 1000)
+   })
+   isEdit.value = false
+}
+// 跳转路由
+const goTo = (fullpath: string) => {
+   uni.navigateTo({ url: fullpath })
+}
+</script>
+
+<!-- 个人中心页面 -->
 <template>
    <view v-if="token" class="personal-page page" :style="{ height: windowHeight }">
       <!-- 用户信息 -->
       <view class="user-info">
-         <image :src="avatar || `/static/avatar.png`" class="avatar" mode="aspectFill" @click="editAvatar" />
-         <text class="name" @click="editNickname">{{ nickname }}</text>
+         <image :src="userinfo.avatar || `/static/avatar.png`" class="avatar" mode="aspectFill" @click="editAvatar" />
+         <text class="name" @click="editNickname">{{ userinfo.nickname || '待完善' }}</text>
       </view>
       <!-- 方块列表 -->
       <view class="blocak-list">
@@ -19,7 +93,7 @@
          <!-- 积分 -->
          <view class="item" style="background-color:#EEC60A;">
             <text class="title">积分</text>
-            <text class="text">999</text>
+            <text class="text">{{ userinfo.integral }}</text>
          </view>
       </view>
       <!-- 按钮栏 -->
@@ -31,7 +105,7 @@
                <svg-icon icon="arrow-r" :size="15" color="#999" />
             </view>
          </view>
-         <view class="btn">
+         <view class="btn" @click="goTo('/subpackage/favorites')">
             <svg-icon icon="favorites" :size="20" color="#EEC60A" />
             <text class="text">收藏夹</text>
             <view class="arraw">
@@ -45,7 +119,7 @@
                <svg-icon icon="arrow-r" :size="15" color="#999" />
             </view>
          </view>
-         <view class="btn">
+         <view class="btn" @click="goTo('/subpackage/set-up')">
             <svg-icon icon="set" :size="20" color="#6C7084" />
             <text class="text">设置</text>
             <view class="arraw">
@@ -54,86 +128,11 @@
          </view>
       </view>
    </view>
-   <view v-else class="to-login" :style="{ height: windowHeight }">  
-      <svg-icon icon="warn" :size="60" color="red"/>
+   <view v-else class="to-login" :style="{ height: windowHeight }">
+      <svg-icon icon="warn" :size="60" color="red" />
       <view class="login-btn" @click="goTo('/subpackage/login-user')">去登录</view>
    </view>
 </template> 
-
-<script setup lang="ts">
-import { USE_MANUAL, BASE_URL } from '@/config'
-import { documentPreview, getWindowHeight } from '@/utils'
-
-// 是否处于编辑状态
-const isEdit = ref<boolean>(false)
-const nickname = ref<string>(uni.getStorageSync('nickname') || '带完善')
-const avatar = ref<string>(uni.getStorageSync('avatar'))
-const windowHeight = ref<string>()
-const token = ref<string>(uni.getStorageSync('token')) // 登录授权
-
-onLoad(() => {
-   getWindowHeight().then((H: string) => {
-      windowHeight.value = H
-   })
-})
-
-//编辑头像
-const editAvatar = () => {
-   isEdit.value = false
-   uni.showActionSheet({ itemList: ['拍照', '相册'] }).then((res) => {
-      if (res.tapIndex === 0) {
-         // 拍照操作
-         uni.chooseImage({ count: 1, sourceType: ['camera'] }).then((imageObj) => {
-            uni.showLoading({ title: '上传中...' })
-            setTimeout(() => {
-               avatar.value = imageObj.tempFilePaths[0]
-               uni.setStorageSync('avatar', avatar.value)
-               uni.hideLoading()
-            }, 1000)
-         })
-      } else {
-         // 选择相册
-         uni.chooseImage({ count: 1, sourceType: ['album'] }).then((imageObj) => {
-            uni.showLoading({ title: '上传中...' })
-            setTimeout(() => {
-               avatar.value = imageObj.tempFilePaths[0]
-               uni.setStorageSync('avatar', avatar.value)
-               uni.hideLoading()
-            }, 1000)
-         })
-      }
-   }).catch(() => { })
-}
-//编辑昵称
-const editNickname = () => {
-   uni.showModal({ editable: true, placeholderText: '请输入昵称' }).then((inp: any) => {
-      if (!inp.content) return // 取消编辑
-      if (!inp.content.trim()) return uni.showToast({ title: '内容不能为空', icon: 'error' })
-      uni.showLoading({ title: '上传中...' })
-      setTimeout(() => {
-         nickname.value = inp.content
-         uni.setStorageSync('nickname', nickname.value)
-         uni.hideLoading()
-      }, 1000)
-   })
-   isEdit.value = false
-}
-// 跳转路由
-const goTo = (fullpath: string) => {
-   uni.navigateTo({ url: fullpath })
-}
-// 清除数据
-const loginOut = () => {
-   uni.showModal({
-      title: '是否清除所有数据？',
-      success({ confirm }) {
-         confirm && uni.clearStorage()
-         confirm && uni.showToast({ title: '清除成功' })
-         uni.redirectTo({ url: '/pages/login/login' })
-      },
-   })
-}
-</script>
 
 <style lang="scss" scoped>
 .personal-page {
@@ -213,10 +212,15 @@ const loginOut = () => {
          box-sizing: border-box;
          color: #333333;
          background-color: #fff;
-         &:active { background: #efefef; }
+
+         &:active {
+            background: #efefef;
+         }
+
          .text {
             margin-left: 24rpx;
          }
+
          .arraw {
             position: absolute;
             top: 50%;
@@ -236,6 +240,7 @@ const loginOut = () => {
    flex-direction: column;
    justify-content: center;
    align-items: center;
+
    .login-btn {
       width: 100%;
       height: 100rpx;
@@ -248,9 +253,9 @@ const loginOut = () => {
       text-align: center;
       line-height: 100rpx;
       margin-top: 80rpx;
+
       &:active {
          background-color: rgb(39, 148, 211);
       }
    }
-}
-</style>
+}</style>

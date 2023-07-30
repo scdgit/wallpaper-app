@@ -52,7 +52,7 @@ import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { HOST, AVATAR_URL } from '@/config'
 import type { ImgType } from '@/type'
 import { decryptData, saveImgToAlbum } from '@/utils'
-import { useFavorites, updateFavorites, previewTargetIndex, usePreviewData } from '@/hooks'
+import { useWallFavorites, updateWallpaper, previewTargetIndex, usePreviewData } from '@/hooks'
 
 let img: ImgType // 图片对象
 const deviceType = uni.getStorageSync('deviceType') // 当前设备类型
@@ -66,7 +66,7 @@ onLoad((options: any) => {
    pre_path = options.pre_path
    index.value = previewTargetIndex(img)
    // 判断是否已收藏
-   useFavorites.forEach((element: ImgType) => {
+   useWallFavorites.forEach((element: ImgType) => {
       if (element.file === img.file) return isCollect.value = true
    });
 })
@@ -139,10 +139,10 @@ const toCollect = () => {
    let msg: string
    flag1 = true
    if (!isCollect.value) { // 点击收藏
-      updateFavorites('add', img)
+      updateWallpaper('add', img)
       msg = '已收藏'
    } else { // 取消收藏
-      updateFavorites('del', img)
+      updateWallpaper('del', img)
       msg = '取消了收藏'
    }
    isCollect.value = !isCollect.value

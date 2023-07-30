@@ -1,6 +1,7 @@
-import { JSON_URL, BASE_URL, PROXY_API } from '@/config'
-import { ImgType } from '@/type'
+import { JSON_URL, BASE_URL, PROXY_API, WEB_IMG_API } from '@/config'
+import { BookType, ImgType } from '@/type'
 import { useDeviceType } from '@/hooks'
+import { getUrl } from '@/utils'
 /**
  * 获取指定分类中的json数据
  * @param room 分类对应的json文件名
@@ -62,6 +63,7 @@ export const getExpansionApi = () => {
  * 获取小说json文件数据
  * @returns 小说json列表数据
  */
+// 过滤简介中的无用字符
 export const getNovelData = () => {
    // 请求小说文字
    return new Promise((resolve: any, reject: any) => {
@@ -74,6 +76,7 @@ export const getNovelData = () => {
          success: (res: any) => {
             for (const book of res.data.books) {
                book.bg = `${BASE_URL}/books/${book.bg}`
+               book.introduction = book.introduction.replace(/[\s：\n]/g, '')
             }
             resolve(res.data)
          },
@@ -98,7 +101,7 @@ export const novelCurrentPageContent = (num: number, bookname: string): Promise<
          url: url,
          method: 'GET',
          success: (res: any) => {
-            setTimeout(() => {resolve(res.data)}, 3000)
+            setTimeout(() => { resolve(res.data) }, 3000)
          },
          fail: (err) => {
             reject(err)
@@ -118,5 +121,55 @@ export const queryPayOrder = (outTradeNo: string, tradeNo: string) => {
       url: '/api/payment/queryOrder',
       method: 'POST',
       data: { outTradeNo, tradeNo }
+   })
+}
+
+/**
+ * 登录用户
+ * @param uname 用户名
+ * @param password 密码
+ */
+export const loginApi = (uname: string, password: string) => {
+   return uni.request({
+      url: `/api/user/login`,
+      method: 'POST',
+      data: { uname, password }
+   })
+}
+
+/**
+ * 注册用户
+ * @param uname 用户名
+ * @param password 密码
+ * @returns
+ */
+export const registerApi = (uname: string, password: string, email: string) => {
+   return uni.request({
+      url: '/api/user/register',
+      method: 'POST',
+      data: { uname, password, email }
+   })
+}
+
+/**
+ * 获取漫画基本JSON文件
+ * @returns Promise
+ */
+export const comicMainJsonApi = () => {
+   let url = ''
+   if (useDeviceType === 'web') url = `${WEB_IMG_API}/img/comic/comic.json`
+   else url = 'http://x006.b.u8s.ru/img/comic/comic.json'
+   return uni.request({ url: url })
+}
+
+/**
+ * 获取对应漫画的JSON文件
+ * @param bookname 漫画名称
+ * @returns Promise
+ */
+export const comicDetailJsonApi = (bookname: string): Promise<any> => {
+   if (!bookname) return uni.showToast({ title: 'bookname不能为空' })
+   return uni.request({
+      url: getUrl(`/comic/${bookname}/main.json`)
    })
 }

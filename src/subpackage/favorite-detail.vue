@@ -1,27 +1,49 @@
 <script lang="ts" setup>
-import Back from '@/components/Back.vue'
-import Title from '@/components/Title.vue'
-import { useNovels, initNovels } from '@/hooks'
+import WaterFallFlow from '@/components/waterfall-flow.vue'
+import { useWallFavorites, initWallpaper, useCollectBooks, initCollectBooks } from '@/hooks'
 import { BookType } from '@/type'
-import { encryptData } from '@/utils'
+import { getWindowHeight, encryptData } from '@/utils'
 
-onLoad(() => {
-   if (useNovels.length <= 0) initNovels()
+const tag = ref<'wall' | 'novel' | 'comic'>(null)
+const windowHeight = ref<string>(null)
+
+onLoad((options) => {
+   getWindowHeight().then(H => {
+      windowHeight.value = H + 50 + 'px'
+   })
+   tag.value = options.tag
+   switch (tag.value) {
+      case 'wall':
+         if (useWallFavorites.length <= 0) initWallpaper()
+         break;
+      case 'novel':
+         if (useCollectBooks.length <= 0) initCollectBooks()
+         break
+   }
 })
+
+const back = () => {
+   uni.reLaunch({ url: '/subpackage/favorites' })
+}
 
 // 查看书本
 const openBook = (book: BookType) => {
-   uni.navigateTo({ url: `/subpackage/book?book=${encryptData(book)}` })
+   const backUrl = '/subpackage/favorite-detail?tag=' + tag.value
+   uni.reLaunch({ url: `/subpackage/book?book=${encryptData(book)}&back=${encryptData(backUrl)}` })
 }
 </script>
 
-<!-- 小说列表页 -->
+<!-- 收藏夹详情页 -->
 <template>
-   <view class="novel">
-      <Back url="/pages/index/index" />
-      <Title text="所有图书" />
-      <view class="book-list">
-         <view v-for="(book, index) of useNovels" :key="index" class="book">
+   <view class="favorite-detail" :style="{ height: windowHeight }">
+      <view class="back" @click="back">
+         <svg-icon icon="arrow-l" :size="25" color="#999" />返回
+      </view>
+      <view v-if="tag === `wall`" class="wallpaper container p-b-20">
+         <WaterFallFlow :data="useWallFavorites" />
+      </view>
+      <view v-if="tag === `novel`" class="novel container">
+         <view v-for="(book, index) of useCollectBooks" :key="index" class="book">
             <view class="img-box grad-animation">
                <img :src="book.bg" alt="" mode="widthFix" style="width: 100%;" />
             </view>
@@ -38,23 +60,45 @@ const openBook = (book: BookType) => {
             </view>
          </view>
       </view>
+      <view v-if="tag === `comic`" class="comic container">
+
+      </view>
    </view>
 </template>
 
 <style scoped lang="scss">
-.novel {
+.favorite-detail {
    background-color: #F8F8F8;
-   height: 100vh;
-   padding: 128rpx 40rpx 0;
+   padding: 40rpx 40rpx 0;
    box-sizing: border-box;
+   overflow-y: scroll;
 
-   .book-list {
+   .p-b-20 {
+      padding-bottom: 40rpx !important;
+   }
+
+   .container {
+      padding: 40rpx 40rpx 0;
+      background-color: #ffff;
+      border-radius: 8rpx;
+      margin-top: 40rpx;
+   }
+
+   .back {
+      margin-bottom: 48rpx;
+      margin-left: -1.5%;
+      display: flex;
+      align-items: center;
+   }
+
+   .novel {
       display: flex;
       flex-direction: column;
 
       .book {
          display: flex;
          margin-bottom: 40rpx;
+
          .img-box {
             width: 152rpx;
             line-height: 0;

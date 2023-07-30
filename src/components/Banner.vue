@@ -1,17 +1,3 @@
-<template>
-   <view class="swoper-box">
-      <swiper class="swiper grad-animation" :circular="circular" :autoplay="setAutoplay" @change="toggleCurrent">
-         <swiper-item v-for="(item, index) of data" :key="index" @click="columnDetails(item)">
-            <view class="swiper-item uni-bg-red">
-               <image :src="item.url" class="image" mode="widthFix" lazy-load/>
-            </view>
-         </swiper-item>
-      </swiper>
-      <view class="dots">
-         <view v-for="(_, index) of data" :key="index" class="dot-item" :class="{ active: index === currentPoint }" />
-      </view>
-   </view>
-</template>
 <script setup lang="ts">
 import type { ImgType } from '@/type'
 import { encryptData } from '@/utils'
@@ -62,15 +48,36 @@ const columnDetails = (img: ImgType) => {
 }
 </script>
 
+<!-- index.vue的banner组件 -->
+<template>
+   <view class="swoper-box">
+      <swiper class="swiper" :circular="circular" :autoplay="setAutoplay" @change="toggleCurrent">
+         <swiper-item v-for="(item, index) of data" :key="index" class="grad-animation" @click="columnDetails(item)">
+            <view class="swiper-item">
+               <image :src="item.url" class="image" mode="widthFix" lazy-load/>
+            </view>
+         </swiper-item>
+      </swiper>
+      <view class="dots">
+         <view v-for="(_, index) of data" :key="index" class="dot-item" :class="{ active: index === currentPoint }" />
+      </view>
+   </view>
+</template>
+
 <style lang="scss" scoped>
 .swoper-box {
    position: relative;
-
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
    .swiper {
-      width: 690rpx;
+      width: 700rpx;
       height: 304rpx;
-      margin: 0 auto;
-
+      .swiper-item {
+         margin: 0 6rpx;
+         overflow: hidden;
+      }
       .image {
          width: 100%;
          height: 100%;
@@ -78,11 +85,6 @@ const columnDetails = (img: ImgType) => {
    }
 
    .dots {
-      position: absolute;
-      bottom: -18rpx;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
       margin-top: 18rpx;
       display: flex;
 

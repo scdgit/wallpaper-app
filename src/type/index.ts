@@ -43,3 +43,34 @@ export interface BookType {
    introduction: string // 简述
    numberOfFiles: number // 全部页数
 }
+
+// 用户类型
+export interface UserType {
+   id: number
+   nickname: string
+   avatar: string
+   integral: string // 积分
+}
+
+// 漫画章节类型
+export interface ComicChapterType {
+   title: string // 章节标题
+   total: number // 章节图片总数
+   num: string // 存放的目录
+   bookname?: string // 漫画名称
+   charterTotalNum?: number // 总章节数
+}
+// 漫画对象类型
+export interface ComicType {
+   bookname: string // 漫画名称
+   author: string // 作者
+   introduction: string // 漫画简介
+   chapter: [] | [ComicChapterType], // 漫画所有章节
+   total: number // 总章节数
+   cover?: string // 封面
+}
+// 漫画收藏夹的类型
+export interface ComicFavoritesItemType {
+   bookname: string // 漫画名称
+   author: string // 作者
+}

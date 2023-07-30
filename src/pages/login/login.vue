@@ -1,9 +1,6 @@
 <template>
 	<view class="login-box">
 		<image :src="`${BASE_URL}/background/b2.jpeg`" mode="aspectFill" class="pic" @load="imgLoad"/>
-      <view>
-         
-      </view>
 	</view> 
 </template>
 
@@ -11,6 +8,7 @@
 // import { encryptData } from '@/utils'
 import { initMainJsonData, getExpansionApi, getNovelData } from '@/api'
 import { BASE_URL } from '@/config'
+import { initComicMainJson } from '@/hooks/comic'
 uni.showLoading({ title: '加载中...' })
 
 // 初始化资源链接
@@ -34,6 +32,7 @@ onLoad(async () => {
    }
    const novels = await getNovelData()
    uni.setStorageSync('NOVELS', novels)
+   initComicMainJson()
 })
 
 const imgLoad = () => {

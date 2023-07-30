@@ -26,15 +26,15 @@
 			}
 		},
 		{
-			"path": "components/loading",
-			"style": {
-				"navigationBarTitleText": "loading"
-			}
-		},
-		{
 			"path": "pages/novel/novel",
 			"style": {
 				"navigationBarTitleText": "小说"
+			}
+		},
+		{
+			"path": "pages/comic/comic",
+			"style": {
+				"navigationBarTitleText": "漫画"
 			}
 		}
 	],
@@ -118,7 +118,37 @@
 				{
 					"path": "login-user",
 					"style": {
-						"navigationBarTitleText": "login-user"
+						"navigationBarTitleText": "登陆注册"
+					}
+				},
+				{
+					"path": "set-up",
+					"style": {
+						"navigationBarTitleText": "设置"
+					}
+				},
+				{
+					"path": "favorite-detail",
+					"style": {
+						"navigationBarTitleText": "收藏详情"
+					}
+				},
+				{
+					"path": "book",
+					"style": {
+						"navigationBarTitleText": "查看书本"
+					}
+				},
+				{
+					"path": "comic-open",
+					"style": {
+						"navigationBarTitleText": "查看漫画"
+					}
+				},
+				{
+					"path": "comic-detail",
+					"style": {
+						"navigationBarTitleText": "comic-detail"
 					}
 				}
 			]

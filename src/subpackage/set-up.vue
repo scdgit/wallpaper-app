@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import { getWindowHeight } from '@/utils'
-import { initWallpaper, initCollectBooks } from '@/hooks'
+import { clearUserData } from '@/utils/user'
 
 const windowHeight = ref<string>()
+const storeageSize = ref(uni.getStorageInfoSync().currentSize)
 
 getWindowHeight().then((H: number) => {
-   windowHeight.value = H + 50 + 'px'
+   windowHeight.value = H + 'px'
+})
+
+const setSize = computed(() => {
+   return (storeageSize.value / 1024).toFixed(3) + 'M'
 })
 
 // 回退
@@ -13,44 +18,59 @@ const back = () => {
    uni.switchTab({ url: '/pages/personal/personal' })
 }
 
-// 跳转页面
-const goToDetail = (tag: 'wall' | 'novel' | 'comic') => {
-   if (tag === 'wall') {
-      if (initWallpaper().length <= 0) return uni.showToast({ title: '快去收藏吧', icon: 'none' })
-   } else if (tag === 'novel') {
-      if (initCollectBooks().length <= 0) return uni.showToast({ title: '快去收藏吧', icon: 'none' })
-   }
-   uni.navigateTo({ url: `/subpackage/favorite-detail?tag=${tag}` })
+// 清除数据
+const loginOut = () => {
+   uni.showModal({
+      content: '是否清除所有数据？',
+      success({ confirm }) {
+         if (confirm) {
+            clearUserData()
+            uni.showToast({ title: '清除成功' })
+            uni.navigateTo({ url: '/pages/login/login' })
+         }
+      },
+   })
+}
+
+// 退出登陆
+const doExit = () => {
+   uni.showModal({
+      content: '是否退出登陆',
+      success({ confirm }) {
+         if (confirm) {
+            uni.removeStorageSync('userinfo')
+            uni.removeStorageSync('token')
+            uni.reLaunch({ url: '/subpackage/login-user' })
+         }
+      },
+   })
 }
 </script>
 
-<!-- 收藏夹页面 -->
+<!-- 个人中心的设置页面 -->
+
 <template>
    <view class="set-up" :style="{ height: windowHeight }">
       <view class="back" @click="back">
          <svg-icon icon="arrow-l" :size="25" color="#999" />
       </view>
-      <view class="title">收藏夹</view>
+      <view class="title">设置</view>
       <view class="container">
-         <view class="item m-b-20" @click="goToDetail('wall')">
-            <text class="text">图片</text>
+         <view class="item m-b-20" @click="loginOut">
+            <text class="text">清除用户数据</text>
             <view class="right">
+               <text class="size" style="color:rgb(75, 175, 214)">{{ setSize }}</text>
                <svg-icon icon="arrow-r" color="#999" :size="12" />
             </view>
          </view>
-         <view class="item m-b-20" @click="goToDetail('novel')">
-            <text class="text">小说</text>
+         <view class="item">
+            <text class="text">上限存储空间</text>
             <view class="right">
-               <svg-icon icon="arrow-r" color="#999" :size="12" />
-            </view>
-         </view>
-         <view class="item" @click="goToDetail('comic')">
-            <text class="text">漫画</text>
-            <view class="right">
-               <svg-icon icon="arrow-r" color="#999" :size="12" />
+               <text class="size" style="color:red">10M</text>
             </view>
          </view>
       </view>
+      <view class="exit" @click="doExit">退出登陆</view>
    </view>
 </template>
 

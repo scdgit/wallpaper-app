@@ -14,3 +14,7 @@ export const USE_MANUAL = '/imgapi/img/doc/instructions.pdf'
 export const AVATAR_URL = `${BASE_URL}/avatar`
 // proxy api
 export const PROXY_API = '/imgapi'
+// 通知文本
+export const NOTICE_TEXT = '我的-充值中心充值/完成预览任务-获得更多积分-每日登陆可免费领取2点积分'
+// 漫画更目录
+export const COLUMN_BASE_URL = 'http://x006.b.u8s.ru/img/comic'

@@ -1,4 +1,5 @@
 import { KEY, WEB_IMG_API } from '@/config'
+import { useDeviceType } from '@/hooks'
 
 /**
  * 获取一个指定范围的随机数
@@ -67,6 +68,7 @@ export function chooseImage(sourceType: string) {
  * @returns 加密之后的数据
  */
 export function encryptData(data: any) {
+   if (!data) return
    const str = JSON.stringify(data)
    let encryptedStr = '';
    for (let i = 0; i < str.length; i++) {
@@ -83,6 +85,7 @@ export function encryptData(data: any) {
  * @returns 解密之后的数据
  */
 export function decryptData(encryptedData: string) {
+   if (!encryptedData) return
    let decryptedStr = '';
    for (let i = 0; i < encryptedData.length; i++) {
       const charCode = encryptedData.charCodeAt(i) ^ KEY.charCodeAt(i % KEY.length);
@@ -191,12 +194,12 @@ export function getNavigationH() {
  * 获取页面可视区域的高度
  * @returns 页面中间可视区域的高度
  */
-export const getWindowHeight = (): Promise<string> => {
+export const getWindowHeight = (): Promise<number> => {
    return new Promise((resolve, reject) => {
-      let H: string
+      let H: number
       uni.getSystemInfo({
          success: (res) => {
-            H = res.windowHeight - 50 + 'px'
+            H = res.windowHeight - 50
             resolve(H)
          },
          fail: err => {
@@ -218,4 +221,34 @@ export const targetObjData = (obj: object, target: string): string => {
       obj = obj[att]
    })
    return obj + ''
+}
+
+/**
+ * 获取不同设备下的请求地址
+ * @param path 请求接口地址(包含/)
+ * @returns url
+ */
+export const getUrl = (path: string): string => {
+   let url: string
+   if (useDeviceType === 'web') {
+      url = `${WEB_IMG_API}/img${path}`
+   } else {
+      url = `http://x006.b.u8s.ru/img${path}`
+   }
+   return url
+}
+
+/**
+ * 加载一张图片
+ * @param url
+ * @returns 
+ */
+export const loadOneImg = (url: string): Promise<boolean> => {
+   return new Promise((reslove, reject) => {
+      uni.request({
+         url,
+         success: () => reslove(true),
+         fail: () => reject(false)
+      })
+   })
 }

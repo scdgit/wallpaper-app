@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFavorites, updateFavorites } from '@/hooks'
+import { useWallFavorites, updateWallpaper } from '@/hooks'
 import { ImgType } from '@/type'
 
 const props: any = defineProps({
@@ -34,7 +34,7 @@ const setLove = computed(() => {
 
 // 刷新收藏按按
 function loadLoveBtn() {
-   isLove.value = useFavorites.some((element: ImgType) => {
+   isLove.value = useWallFavorites.some((element: ImgType) => {
       return element.url === props.target.url
    })
 }
@@ -43,10 +43,10 @@ function loadLoveBtn() {
 const doLove = (type: -1 | 1) => {
    if (!props.target) return
    switch(type) {
-      case -1: updateFavorites('del', props.target)
+      case -1: updateWallpaper('del', props.target)
          isLove.value = false // 取消
          break
-      case 1: updateFavorites('add', props.target)
+      case 1: updateWallpaper('add', props.target)
          isLove.value = true // 收藏
          break
    }

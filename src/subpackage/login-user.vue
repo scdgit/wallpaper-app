@@ -1,31 +1,101 @@
 <script lang="ts" setup>
-const uname = ref<string>()
-const password = ref<string>()
-const suffixIcon = ref<'eye' | 'eye-slash'>('eye-slash')
+import { loginApi, registerApi } from '@/api'
+
+const uname = ref<string>('')
+const password = ref<string>('')
+const email = ref<string>('')
 const active = ref<number>(1)
-const passType = ref<'password' | 'text'>('password')
-const placeholderPass1 = ref<string>('密码')
 
 const unameInp = (val: string) => {
-   console.log(val)
+   uname.value = val.trim()
 }
-
-const iconClick = () => {
-   suffixIcon.value = suffixIcon.value === 'eye' ? 'eye-slash' : 'eye'
-   passType.value = passType.value === 'password' ? 'text' : 'password'
+const passInp1 = (val: string) => {
+   password.value = val.trim()
+}
+const emailInp = (val: string) => {
+   email.value = val.trim()
 }
 
 const toggleActive = (index: number) => {
+   uname.value = ''
+   password.value = ''
+   email.value = ''
    active.value = index
 }
 
-watch(() => active.value, (nval) => {
-   if (nval === 2) {
-      placeholderPass1.value = '输入密码'
-   } else {
-      placeholderPass1.value = '密码'
+// 用户名校验
+const unameCheck = () => {
+   const regex = /^[a-zA-Z0-9_]{3,16}$/
+   return regex.test(uname.value)
+}
+
+// 密码校验
+const passwordCheck = () => {
+   const regex = /^[a-zA-Z0-9_]{6,12}$/
+   return regex.test(password.value)
+}
+
+// 邮箱校验
+const emailCheck = () => {
+   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+   return regex.test(email.value)
+}
+
+const doLogin = () => {
+   if (!uname.value || !password.value) return uni.showToast({ title: '信息不完整', icon: 'none' })
+   if (!unameCheck()) {
+      return uni.showToast({ title: '用户名不符合规范', icon: 'none' })
    }
-})
+   if (!passwordCheck()) {
+      return uni.showToast({ title: '密码不符合规范', icon: 'none' })
+   }
+   loginApi(uname.value, password.value).then((res: any) => {
+      if (res.data.code === 1) {
+         const { nickname, avatar, id, integral } = res.data
+         // 存储token
+         uni.setStorageSync('token', res.data.token)
+         uni.setStorageSync('userinfo', JSON.stringify({ nickname, avatar, id, integral }))
+         // 跳转路由
+         uni.switchTab({ url: '/pages/personal/personal' })
+      } else {
+         if (typeof res.data === 'string') uni.showToast({ title: '服务器错误', icon: 'error' })
+         else uni.showToast({ title: res.data.msg, icon: 'error' })
+      }
+   }).catch(() => {
+      uni.showToast({ title: '网络错误', icon: 'error' })
+   })
+}
+
+const doRegister = () => {
+   if (!uname.value || !password.value || !email.value) return uni.showToast({ title: '信息不完整', icon: 'none' })
+   if (!unameCheck()) {
+      uname.value = ''
+      return uni.showToast({ title: '用户名不符合规范', icon: 'none' })
+   }
+   if (!passwordCheck()) {
+      password.value = ''
+      return uni.showToast({ title: '密码不符合规范', icon: 'none' })
+   }
+   if (!emailCheck()) {
+      email.value = ''
+      return uni.showToast({ title: '邮箱不符合规范', icon: 'none' })
+   }
+   registerApi(uname.value, password.value, email.value).then((res: any) => {
+      if (res.data.code === 1) {
+         const { nickname, avatar, insertId, token, integral } = res.data
+         uni.setStorageSync('userinfo', JSON.stringify({ nickname, avatar, id: insertId, integral }))
+         uni.setStorageSync('token', token)
+         // 跳转理由
+         uni.switchTab({ url: '/pages/personal/personal' })
+      } else {
+         if (typeof res.data === 'string') uni.showToast({ title: '服务器错误', icon: 'error' })
+         else uni.showToast({ title: res.data.msg, icon: 'error' })
+      }
+   }).catch(() => {
+      uni.showToast({ title: '网络错误', icon: 'error' })
+   })
+}
+
 </script>
 
 <template>
@@ -37,20 +107,18 @@ watch(() => active.value, (nval) => {
       <view class="title">欢迎回来！</view>
       <view class="login-info">
          <view class="uname inp">
-            <uni-easyinput errorMessage :value="uname" focus placeholder="用户名" @input="unameInp"></uni-easyinput>
+            <uni-easyinput errorMessage focus :value="uname" placeholder="用户名" @input="unameInp" />
          </view>
          <view class="password inp">
-            <uni-easyinput class="uni-mt-5" :suffixIcon="suffixIcon" :value="password" :placeholder="placeholderPass1"
-               :passwordIcon="false" :type="passType" @icon-click="iconClick"></uni-easyinput>
+            <uni-easyinput class="uni-mt-5" :value="password" placeholder="密码" type="password" @input="passInp1" />
          </view>
          <view v-if="active === 2" class="password inp">
-            <uni-easyinput class="uni-mt-5" :suffixIcon="suffixIcon" :value="password" placeholder="确认密码"
-               :passwordIcon="false" :type="passType" @icon-click="iconClick"></uni-easyinput>
+            <uni-easyinput class="uni-mt-5" :value="email" placeholder="邮箱" :passwordIcon="false" @input="emailInp" />
          </view>
          <view v-if="active === 1" class="forgot-pass">忘记密码？</view>
       </view>
-      <button v-if="active === 1" class="submit">登录</button>
-      <button v-else class="submit">注册</button>
+      <button v-if="active === 1" class="submit" @click="doLogin">登录</button>
+      <button v-else class="submit" @click="doRegister">注册</button>
    </view>
 </template>
 
@@ -108,6 +176,7 @@ watch(() => active.value, (nval) => {
          margin: 0 auto;
          margin-bottom: 28rpx;
       }
+
       .forgot-pass {
          width: 80%;
          font-size: 20rpx;
@@ -122,6 +191,7 @@ watch(() => active.value, (nval) => {
       color: #fff;
       font-size: 26rpx;
       margin-top: 40rpx;
+
       &:active {
          background-color: #3763EE;
       }

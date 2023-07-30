@@ -1,3 +1,96 @@
+<script setup lang="ts">
+import Banner from '@/components/Banner.vue'
+import type { ImgType, ExpansionApisType } from '@/type'
+import { decryptData, targetObjData } from '@/utils'
+import { useDeviceType, goToPreview, initNovels } from '@/hooks'
+import { useComicMainJson, initComicMainJson } from '@/hooks/comic'
+import { BASE_URL, NOTICE_TEXT, COLUMN_BASE_URL } from '@/config'
+
+let banner = ref<Array<ImgType>>() // 轮播图数据
+let autoplay = ref<boolean>(true)
+let expansionApis: Array<ExpansionApisType> = uni.getStorageSync('EXPANSIONAPI')
+const popup = ref(null) // 随机文案弹出层
+let randomText = ref<string>() // 随机文案
+
+//#ifdef MP-WEIXIN
+uni.showShareMenu()
+//#endif
+
+onLoad(async () => {
+   uni.hideLoading()
+   banner.value = uni.getStorageSync('DATABASE').banner
+   initComicMainJson()
+})
+
+onPageScroll(({ scrollTop }) => {
+   if (scrollTop >= 202) {
+      // 停止轮播图的播放
+      autoplay.value = false
+   } else {
+      autoplay.value = true
+   }
+})
+// 设置自动播放
+const setAutoplay = computed(() => {
+   return autoplay.value
+})
+
+// 调用扩展接口
+const callApi = (expansionApi: ExpansionApisType) => {
+   uni.showLoading()
+   const base = useDeviceType === 'web' ? expansionApi.proxy : expansionApi.host
+   const method = expansionApi.method ? expansionApi.method : 'GET'
+   uni.request({
+      url: base + expansionApi.api,
+      method: method,
+      success: (res: any) => {
+         uni.hideLoading()
+         const target: string = targetObjData(res.data, expansionApi.target)
+         if ((/\.(png|jpe?g|gif)$/i).test(target)) {
+            const img: ImgType = {
+               file: '', describe: '', tag: '', ratio: 0,
+               url: target
+            }
+            goToPreview([img], img)
+         } else {
+            randomText.value = target
+            // 弹出随机文案
+            popup.value.open()
+         }
+      },
+      fail: (err) => {
+         uni.hideLoading()
+         uni.showToast({ title: err.errMsg, icon: 'error' })
+         console.error('发生了未知错误:' + JSON.stringify(err))
+      }
+   })
+}
+// 退出随机文本弹出框
+const exitTextBox = () => {
+   popup.value.close()
+}
+
+// 进入小说列表页面
+const goToNovelPage = () => {
+   initNovels()
+   uni.navigateTo({
+      url: '/pages/novel/novel'
+   })
+}
+
+const goTo = (url: string, params?: object) => {
+   if (params) {
+      let str = '?'
+      for (let key in params) {
+         str += `${key}=${params[key]}&`
+      }
+      url += str
+   }
+   uni.navigateTo({ url })
+}
+</script>
+
+<!-- 首页页面 -->
 <template>
    <view class="container">
       <!-- 头部 -->
@@ -27,7 +120,7 @@
          </view>
       </uni-popup>
       <!-- 通知栏 -->
-      <uni-notice-bar show-icon scrollable class="notice" :text="noticeText" />
+      <uni-notice-bar show-icon scrollable class="notice" :text="NOTICE_TEXT" />
       <!-- 主体内容区域 -->
       <view class="column-container">
          <view class="column1">
@@ -50,101 +143,24 @@
          </view>
          <view class="conlum2">
             <view class="column-title">
-               <uni-section title="代办推荐" type="line">
+               <uni-section title="漫画推荐" type="line">
                   <template #right>
-                     <text class="text">查看更多</text>
+                     <text class="text" @click="goTo('/pages/comic/comic')">查看更多</text>
                      <uni-icons type="forward" size="24rpx" color="#A5A5A5" />
                   </template>
                </uni-section>
             </view>
             <view class="column-content">
-               <view class="image-box">
-                  <image src="@static/column2.png" class="image" mode="widthFix" />
-               </view>
+               <swiper class="swiper">
+                  <swiper-item v-for="(item, index) of useComicMainJson.comicName" :key="index" class="image-box grad-animation">
+                     <image :src="`${COLUMN_BASE_URL}/${item}/bg.png`" class="image" mode="aspectFill" lazy-load/>
+                  </swiper-item>
+               </swiper>
             </view>
          </view>
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import Banner from '@/components/Banner.vue'
-import type { ImgType, ExpansionApisType } from '@/type'
-import { decryptData, targetObjData } from '@/utils'
-import { useDeviceType, goToPreview } from '@/hooks'
-import { BASE_URL } from '@/config'
-
-let banner = ref<Array<ImgType>>() // 轮播图数据
-let autoplay = ref<boolean>(true)
-let noticeText = '我的页面-完成预览任务-充值中心充值-获得更多积分-每日登陆可免费领取2点积分'
-let expansionApis: Array<ExpansionApisType> = uni.getStorageSync('EXPANSIONAPI')
-const popup = ref(null) // 随机文案弹出层
-let randomText = ref<string>() // 随机文案
-
-//#ifdef MP-WEIXIN
-uni.showShareMenu()
-//#endif
-
-onLoad(() => {
-   uni.hideLoading()
-   banner.value = uni.getStorageSync('DATABASE').banner
-})
-
-onPageScroll(({ scrollTop }) => {
-   if (scrollTop >= 202) {
-      // 停止轮播图的播放
-      autoplay.value = false
-   } else {
-      autoplay.value = true
-   }
-})
-// 设置自动播放
-const setAutoplay = computed(() => {
-   return autoplay.value
-})
-
-// 调用扩展接口
-const callApi = (expansionApi: ExpansionApisType) => {
-   uni.showLoading({ title: '生成中...' })
-   const base = useDeviceType === 'web' ? expansionApi.proxy : expansionApi.host
-   const method = expansionApi.method ? expansionApi.method : 'GET'
-   uni.request({
-      url: base + expansionApi.api,
-      method: method,
-      success: (res: any) => {
-         uni.hideLoading()
-         const target: string = targetObjData(res.data, expansionApi.target)
-         if ((/\.(png|jpe?g|gif)$/i).test(target)) {
-            const img: ImgType = {
-               file: '', describe: '', tag: '', ratio: 0,
-               url: target
-            }
-            goToPreview([img], img)
-         } else {
-            randomText.value = target
-            // 弹出随机文案
-            popup.value.open()
-         }
-      },
-      fail: (err) => {
-         uni.hideLoading()
-         uni.showToast({ title: '生成失败...' })
-         console.error('发生了未知错误:' + JSON.stringify(err))
-      }
-   })
-}
-// 退出随机文本弹出框
-const exitTextBox = () => {
-   popup.value.close()
-}
-
-// 进入小说列表页面
-const goToNovelPage = () => {
-   uni.navigateTo({
-      url: '/pages/novel/novel'
-   })
-}
-</script>
 
 <style scoped lang="scss">
 .container {
@@ -180,9 +196,11 @@ const goToNovelPage = () => {
          flex-direction: column;
          justify-content: center;
          align-items: center;
+
          .image {
             height: 30px;
          }
+
          .text {
             font-size: 20rpx !important;
             margin-top: 16rpx;
@@ -204,6 +222,7 @@ const goToNovelPage = () => {
       position: relative;
       border-radius: 8rpx;
       text-align: justify;
+
       .exit-icon {
          position: absolute;
          z-index: 999;
@@ -279,18 +298,23 @@ const goToNovelPage = () => {
          }
       }
 
-      .column2 {
+      .conlum2 {
          width: 100%;
-         margin-bottom: 48rpx;
+         margin-bottom: 20rpx;
 
          .column-content {
             width: 100%;
             display: flex;
             justify-content: space-between;
 
-            .image-box {
+            .swiper {
                width: 100%;
                height: 158px;
+            }
+
+            .image-box {
+               width: 100%;
+               height: 100%;
             }
          }
       }

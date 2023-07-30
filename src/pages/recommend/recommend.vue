@@ -1,3 +1,66 @@
+<script lang="ts" setup>
+import WaterFallFlow from '@/components/waterfall-flow.vue'
+import Love from '@/components/Love.vue'
+import type { ColumnType } from '@/type'
+import { initWallpaper } from '@/hooks'
+import { AVATAR_URL } from '@/config'
+
+let navValue = ref<number>(0)
+let mainData: any = reactive({})
+const range = reactive([])
+let limit = ref<number>(6)
+let isFixed = ref<boolean>(false) // 菜单按钮定位
+const popup = ref(null);
+
+onLoad(() => {
+   initWallpaper()
+   mainData = uni.getStorageSync('DATABASE')
+   mainData.column.forEach((element: ColumnType, index: number) => {
+      range.push({ value: index, text: element.title, room: element.room })
+   })
+})
+
+// 导航切换
+const toggleNav = (val: number, cb?: () => void) => {
+   navValue.value = val
+   cb && cb()
+}
+// 点击菜单中按钮时，屏幕滚动到顶部
+watch(() => navValue.value, (nval: number, olval: number) => {
+   if (nval !== olval) {
+      uni.pageScrollTo({ scrollTop: 0, duration:0 })
+   }
+})
+
+// 触发到达底部加载数据
+onReachBottom(() => {
+   uni.$emit('wataerfall-loading', navValue.value)
+})
+
+// 页面滚动事件
+onPageScroll(({ scrollTop }) => {
+   // 显示菜单按钮
+   if (scrollTop >= 102) {
+      // 定位菜单
+      isFixed.value = true
+   } else {
+      isFixed.value = false
+   }
+})
+const setFixed = computed(() => {
+   return isFixed.value
+})
+
+// 打开菜单
+const openMenu = () => {
+   popup.value.open()
+}
+const closeMenu = () => {
+   popup.value.close()
+}
+</script>
+
+<!-- 分类页面 -->
 <template>
    <view class="recommend">
       <!-- 搜索框 -->
@@ -55,68 +118,6 @@
       </uni-popup>
    </view>
 </template>
-
-<script lang="ts" setup>
-import WaterFallFlow from '@/components/waterfall-flow.vue'
-import Love from '@/components/Love.vue'
-import type { ColumnType } from '@/type'
-import { initFavorite } from '@/hooks'
-import { AVATAR_URL } from '@/config'
-
-let navValue = ref<number>(0)
-let mainData: any = reactive({})
-const range = reactive([])
-let limit = ref<number>(6)
-let isFixed = ref<boolean>(false) // 菜单按钮定位
-const popup = ref(null);
-
-onLoad(() => {
-   initFavorite()
-   mainData = uni.getStorageSync('DATABASE')
-   mainData.column.forEach((element: ColumnType, index: number) => {
-      range.push({ value: index, text: element.title, room: element.room })
-   })
-})
-
-// 导航切换
-const toggleNav = (val: number, cb?: () => void) => {
-   navValue.value = val
-   cb && cb()
-}
-// 点击菜单中按钮时，屏幕滚动到顶部
-watch(() => navValue.value, (nval: number, olval: number) => {
-   if (nval !== olval) {
-      uni.pageScrollTo({ scrollTop: 0, duration:0 })
-   }
-})
-
-// 触发到达底部加载数据
-onReachBottom(() => {
-   uni.$emit('wataerfall-loading', navValue.value)
-})
-
-// 页面滚动事件
-onPageScroll(({ scrollTop }) => {
-   // 显示菜单按钮
-   if (scrollTop >= 102) {
-      // 定位菜单
-      isFixed.value = true
-   } else {
-      isFixed.value = false
-   }
-})
-const setFixed = computed(() => {
-   return isFixed.value
-})
-
-// 打开菜单
-const openMenu = () => {
-   popup.value.open()
-}
-const closeMenu = () => {
-   popup.value.close()
-}
-</script>
 
 <style scoped lang="scss">
 /* 定义淡入淡出动画 */
