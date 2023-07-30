@@ -1,17 +1,15 @@
 
 import { comicMainJsonApi } from '@/api'
-import type { ComicFavoritesItemType } from '@/type'
+import type { ComicFavoritesItemType, ChapterActiveType } from '@/type'
 import { encryptData, decryptData } from '@/utils'
 
-// 漫画基本数据
+/**漫画基本数据 */
 export const useComicMainJson = ref({
    title: '',
    comicName: [],
    total: 0
 })
-/**
- * 初始化漫画基础数据
- */
+/**初始化漫画基础数据 */
 export const initComicMainJson = async () => {
    return new Promise((resolve, reject) => {
       if (useComicMainJson.value.title) resolve(true)
@@ -22,11 +20,11 @@ export const initComicMainJson = async () => {
    })
 }
 
-// 漫画收藏列表
+/**漫画收藏列表 */
 export const useComicFavorites = ref<Array<ComicFavoritesItemType>>(uni.getStorageSync('COLECT_COMIC') ? decryptData(uni.getStorageSync('COLECT_COMIC')) : [])
 /**
- * 更新漫画收藏夹
- */
+ * 更新漫画收藏夹 
+ * */
 export const initComicFavorites = () => {
    useComicFavorites.value = uni.getStorageSync('COLECT_COMIC') ? decryptData(uni.getStorageSync('COLECT_COMIC')) : []
 }
@@ -70,4 +68,25 @@ export const removeComicFromFavorites = (target: ComicFavoritesItemType) => {
    } else {
       uni.setStorageSync('COLECT_COMIC', encryptData(useComicFavorites.value))
    }
+}
+
+/**漫画选中的章节 */
+export const useChapterActive = ref<ChapterActiveType>(uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : {})
+/**
+ * 初始化选中的章节
+ */
+export const initChapterActive = () => {
+   useChapterActive.value = uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : null
+}
+/**
+ * 存储选中的漫画章节
+ * @param obj 存储选中的章节信息
+ * @returns 
+ */
+export const saveChapterActive = (obj: ChapterActiveType) => {
+   if (!obj.bookname) {
+      console.error('传入的target为空')
+      return
+   }
+   uni.setStorageSync('CHAPTER_ACTIVE', encryptData(obj))
 }

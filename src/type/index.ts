@@ -74,3 +74,8 @@ export interface ComicFavoritesItemType {
    bookname: string // 漫画名称
    author: string // 作者
 }
+// 选中章节的类型
+export interface ChapterActiveType {
+   bookname: string
+   active: number
+}

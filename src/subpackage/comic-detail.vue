@@ -4,6 +4,7 @@ import { encryptData, decryptData } from '@/utils'
 import type { ComicChapterType } from '@/type'
 import { COLUMN_BASE_URL } from '@/config'
 import { comicDetailJsonApi } from '@/api'
+import { saveChapterActive } from '@/hooks/comic'
 
 let bookname: string
 let chapter: ComicChapterType // 章节对象
@@ -22,6 +23,11 @@ onLoad((options) => {
       const url = `${COLUMN_BASE_URL}/${chapter.bookname}/${chapter.num}/${index}.png`
       imgArr.value.push(url)
    }
+   // 记录当前选中的漫画章节
+   saveChapterActive({
+      bookname: bookname,
+      active: Number(chapter.num) - 1
+   })
 })
 
 // 转化当前章节序号为数字

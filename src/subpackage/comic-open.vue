@@ -5,19 +5,26 @@ import { getWindowHeight, encryptData } from '@/utils'
 import { COLUMN_BASE_URL } from '@/config'
 import {
    useComicFavorites, initComicFavorites,
-   insertComicToFavorites, removeComicFromFavorites
+   insertComicToFavorites, removeComicFromFavorites,
+   useChapterActive, initChapterActive, saveChapterActive
 } from '@/hooks/comic'
 
 const jsonData = ref<ComicType>()
 const windowHeight = ref<string>()
 const love = ref<boolean>(false) // 是否收藏 
 const menuEle = ref() // 章节列表DOM
-const menuActive = ref<number>(null) // 选中的章节
+const menuActive = ref<number>(0) // 选中的章节
 const bookname = ref<string>()
 
 onLoad(async (option: any) => {
    uni.showLoading()
    bookname.value = option.bookname
+   // 初始化选中的章节
+   !useChapterActive.value && initChapterActive()
+   if (bookname.value === useChapterActive.value.bookname && useChapterActive.value.bookname) {
+      menuActive.value = useChapterActive.value.active
+   }
+   // 获取漫画的JSON数据
    await comicDetailJsonApi(bookname.value).then(res => {
       uni.hideLoading()
       jsonData.value = res.data
@@ -27,7 +34,7 @@ onLoad(async (option: any) => {
       windowHeight.value = H + 50 + 'px'
    })
    // 判断是否已收藏
-   !useComicFavorites && initComicFavorites()
+   !useComicFavorites.value && initComicFavorites()
    const findRes = useComicFavorites.value.find(ele => JSON.stringify(ele) === JSON.stringify(jsonData.value))
    findRes ? love.value = true : love.value = false
 })
@@ -50,6 +57,11 @@ const doLove = () => {
 
 // 阅读
 const preview = () => {
+   const chapter = jsonData.value.chapter[menuActive.value]
+   chapter.bookname = bookname.value
+   chapter.charterTotalNum = jsonData.value.chapter.length
+   const url = `/subpackage/comic-detail?chapter=${encryptData(chapter)}`
+   uni.navigateTo({url})
 }
 
 // 跳转
@@ -72,7 +84,13 @@ const toggleChapter = (index: number, chapter: ComicChapterType) => {
    chapter.bookname = bookname.value
    chapter.charterTotalNum = jsonData.value.chapter.length
    const url = `/subpackage/comic-detail?chapter=${encryptData(chapter)}`
-   uni.navigateTo({ url })
+   uni.navigateTo({ url }).then(() => {
+      // 记录当前选中的章节
+      saveChapterActive({
+         bookname: bookname.value,
+         active: menuActive.value
+      })
+   })
 }
 </script>
 
