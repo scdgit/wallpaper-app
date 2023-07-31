@@ -19,8 +19,7 @@ onLoad((options) => {
    charterTotalNum.value = chapter.charterTotalNum
    setBtnStatus(chapter.num, charterTotalNum.value)
    for (let i = 1; i <= chapter.total; i++) {
-      const index = initIndex(i)
-      const url = `${COLUMN_BASE_URL}/${chapter.bookname}/${chapter.num}/${index}.png`
+      const url = `${COLUMN_BASE_URL}/${chapter.bookname}/${chapter.num}/${i}.png`
       imgArr.value.push(url)
    }
    // 记录当前选中的漫画章节
@@ -61,7 +60,6 @@ function setBtnStatus(num: string, totalNum: number) {
 
 // 获取指定漫画JSON文件中的章节名称
 const toggleChapter = (type: 'prev' | 'next') => {
-   console.log(1111)
    uni.showLoading()
    comicDetailJsonApi(bookname).then(res => {
       const chapterArr = res.data.chapter
@@ -96,14 +94,19 @@ const toggleChapter = (type: 'prev' | 'next') => {
 <!-- 阅览漫画页面 -->
 <template>
    <view class="comic-detail">
-      <view class="pic-box">
-         <LoadImg v-for="(item) of imgArr" :key="item" :url="item" />
-      </view>
-      <!-- 切换章节按钮 -->
-      <view class="switch-btn">
-         <button :disabled="prevBtn" size="mini" @click="toggleChapter('prev')">上一章</button>
-         <text class="text">{{ setCurrentNum }} / {{ charterTotalNum }}</text>
-         <button :disabled="nextBtn" size="mini" @click="toggleChapter('next')">下一章</button>
+      <view class="scroll-view">
+         <scroll-view class="scroll-view-box" scroll-y="true">
+            <view class="header">{{ bookname }}-第{{ Number(chapter.num) }}章</view>
+            <view class="pic-box">
+               <LoadImg v-for="(item) of imgArr" :key="item" :url="item" />
+            </view>
+            <!-- 切换章节按钮 -->
+            <view class="switch-btn">
+               <button :disabled="prevBtn" size="mini" @click="toggleChapter('prev')">上一章</button>
+               <text class="text">{{ setCurrentNum }} / {{ charterTotalNum }}</text>
+               <button :disabled="nextBtn" size="mini" @click="toggleChapter('next')">下一章</button>
+            </view>
+         </scroll-view>
       </view>
    </view>
 </template>
@@ -114,7 +117,15 @@ const toggleChapter = (type: 'prev' | 'next') => {
    display: flex;
    flex-direction: column;
    align-items: center;
-
+   .header {
+      width: 100%;
+      height: 80rpx;
+      font-size: 30rpx;
+      line-height: 80rpx;
+      text-indent: 10rpx;
+      background-color: #743407;
+      color: #fff;
+   }
    .pic-box {
       width: 100%;
       line-height: 0;
@@ -125,11 +136,29 @@ const toggleChapter = (type: 'prev' | 'next') => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 60rpx;
+      padding: 40rpx 0;
 
       .text {
          font-size: 20rpx;
       }
    }
+}
+
+/* 使抽屉章节列表具有y方向滚动条 */
+.scroll-view {
+   /* #ifndef APP-NVUE */
+   width: 100%;
+   height: 100%;
+   /* #endif */
+   flex: 1
+}
+
+.scroll-view-box {
+   flex: 1;
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
 }
 </style>

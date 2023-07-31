@@ -22,7 +22,7 @@ const imageError = () => {
 
 <template>
    <view class="img-com">
-      <image v-if="!error" :src="url" mode="widthFix" alt="" class="img" @load="load" @error="imageError" />
+      <image v-if="!error" :src="url" mode="widthFix" alt="" lazy-load class="img" @load="load" @error="imageError" />
       <svg-icon v-if="!finish" icon="loading" color="#888" :size="30" className="loading-icon" />
    </view>
 </template>

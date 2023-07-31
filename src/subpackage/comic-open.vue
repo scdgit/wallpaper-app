@@ -6,7 +6,7 @@ import { COLUMN_BASE_URL } from '@/config'
 import {
    useComicFavorites, initComicFavorites,
    insertComicToFavorites, removeComicFromFavorites,
-   useChapterActive, initChapterActive, saveChapterActive
+   useChapterActive, initChapterActive, saveChapterActive, findActiveChapter
 } from '@/hooks/comic'
 
 const jsonData = ref<ComicType>()
@@ -15,14 +15,17 @@ const love = ref<boolean>(false) // 是否收藏
 const menuEle = ref() // 章节列表DOM
 const menuActive = ref<number>(0) // 选中的章节
 const bookname = ref<string>()
+let backUrl = '/pages/comic/comic'
 
 onLoad(async (option: any) => {
    uni.showLoading()
    bookname.value = option.bookname
+   option.backUrl && (backUrl = option.backUrl)
    // 初始化选中的章节
-   !useChapterActive.value && initChapterActive()
-   if (bookname.value === useChapterActive.value.bookname && useChapterActive.value.bookname) {
-      menuActive.value = useChapterActive.value.active
+   initChapterActive()
+   const findChapter = findActiveChapter(bookname.value)
+   if (findChapter) {
+      menuActive.value = findChapter.active
    }
    // 获取漫画的JSON数据
    await comicDetailJsonApi(bookname.value).then(res => {
@@ -35,7 +38,12 @@ onLoad(async (option: any) => {
    })
    // 判断是否已收藏
    !useComicFavorites.value && initComicFavorites()
-   const findRes = useComicFavorites.value.find(ele => JSON.stringify(ele) === JSON.stringify(jsonData.value))
+   const findRes = useComicFavorites.value.find(ele => {
+      return JSON.stringify(ele) === JSON.stringify({ 
+         bookname: jsonData.value.bookname,
+         author: jsonData.value.author
+      })
+   })
    findRes ? love.value = true : love.value = false
 })
 
@@ -43,7 +51,7 @@ onLoad(async (option: any) => {
 const doLove = () => {
    love.value = !love.value
    const obj: ComicFavoritesItemType = {
-      bookname: jsonData.value.author,
+      bookname: jsonData.value.bookname,
       author: jsonData.value.author
    }
    if (love.value) {
@@ -100,7 +108,7 @@ const toggleChapter = (index: number, chapter: ComicChapterType) => {
       <view class="info">
          <view class="pic grad-animation">
             <img class="image" :src="`${COLUMN_BASE_URL}/${jsonData.bookname}/bg.png`" alt="" mode="widthFix">
-            <view class="back" @click="goTo('/pages/comic/comic')">
+            <view class="back" @click="goTo(backUrl)">
                <svg-icon icon="tag" :size="30" color="#FF842E" />
             </view>
          </view>

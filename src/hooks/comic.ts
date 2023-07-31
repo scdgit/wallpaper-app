@@ -10,7 +10,7 @@ export const useComicMainJson = ref({
    total: 0
 })
 /**初始化漫画基础数据 */
-export const initComicMainJson = async () => {
+export const initComicMainJson = () => {
    return new Promise((resolve, reject) => {
       if (useComicMainJson.value.title) resolve(true)
       comicMainJsonApi().then((res: any) => {
@@ -71,12 +71,13 @@ export const removeComicFromFavorites = (target: ComicFavoritesItemType) => {
 }
 
 /**漫画选中的章节 */
-export const useChapterActive = ref<ChapterActiveType>(uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : {})
+export const useChapterActive = ref<Array<ChapterActiveType>>(uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : [])
 /**
  * 初始化选中的章节
  */
 export const initChapterActive = () => {
-   useChapterActive.value = uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : null
+   if (useChapterActive.value.length > 0) return
+   useChapterActive.value = uni.getStorageSync('CHAPTER_ACTIVE') ? decryptData(uni.getStorageSync('CHAPTER_ACTIVE')) : []
 }
 /**
  * 存储选中的漫画章节
@@ -88,5 +89,21 @@ export const saveChapterActive = (obj: ChapterActiveType) => {
       console.error('传入的target为空')
       return
    }
-   uni.setStorageSync('CHAPTER_ACTIVE', encryptData(obj))
+   initChapterActive()
+   console.log(useChapterActive.value)
+   useChapterActive.value.push(obj)
+   uni.setStorageSync('CHAPTER_ACTIVE', encryptData(useChapterActive.value))
+}
+
+/**
+ * 判断该漫画是否记录过章节内容
+ * @param target 漫画章节
+ * @returns 章节对象
+ */
+export const findActiveChapter = (bookname: string): ChapterActiveType => {
+   initChapterActive()
+   const findRes = useChapterActive.value.find((ele: ChapterActiveType) => {
+      return ele.bookname === bookname
+   })
+   return findRes
 }

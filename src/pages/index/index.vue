@@ -19,7 +19,7 @@ uni.showShareMenu()
 onLoad(async () => {
    uni.hideLoading()
    banner.value = uni.getStorageSync('DATABASE').banner
-   initComicMainJson()
+   await initComicMainJson()
 })
 
 onPageScroll(({ scrollTop }) => {
@@ -84,6 +84,7 @@ const goTo = (url: string, params?: object) => {
       for (let key in params) {
          str += `${key}=${params[key]}&`
       }
+      str = str.slice(0, str.length - 1)
       url += str
    }
    uni.navigateTo({ url })
@@ -153,7 +154,9 @@ const goTo = (url: string, params?: object) => {
             <view class="column-content">
                <swiper class="swiper">
                   <swiper-item v-for="(item, index) of useComicMainJson.comicName" :key="index" class="image-box grad-animation">
-                     <image :src="`${COLUMN_BASE_URL}/${item}/bg.png`" class="image" mode="aspectFill" lazy-load/>
+                     <image :src="`${COLUMN_BASE_URL}/${item}/bg.png`" class="image" mode="aspectFill" 
+                        @click="goTo('/subpackage/comic-open', { bookname: item, backUrl: '/pages/index/index' })"
+                     />
                   </swiper-item>
                </swiper>
             </view>
