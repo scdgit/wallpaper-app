@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { loginApi, registerApi } from '@/api'
+import { updateUserInfo } from '@/hooks/user'
 
 const uname = ref<string>('')
 const password = ref<string>('')
@@ -51,10 +52,11 @@ const doLogin = () => {
    }
    loginApi(uname.value, password.value).then((res: any) => {
       if (res.data.code === 1) {
-         const { nickname, avatar, id, integral } = res.data
+         const { uname, nickname, avatar, id, userIntegral } = res.data
          // 存储token
-         uni.setStorageSync('token', res.data.token)
-         uni.setStorageSync('userinfo', JSON.stringify({ nickname, avatar, id, integral }))
+         uni.setStorageSync('TOKEN', res.data.token)
+         // 存储用户信息
+         updateUserInfo({ uname, nickname, avatar, id, userIntegral })
          // 跳转路由
          uni.switchTab({ url: '/pages/personal/personal' })
       } else {
@@ -82,9 +84,11 @@ const doRegister = () => {
    }
    registerApi(uname.value, password.value, email.value).then((res: any) => {
       if (res.data.code === 1) {
-         const { nickname, avatar, insertId, token, integral } = res.data
-         uni.setStorageSync('userinfo', JSON.stringify({ nickname, avatar, id: insertId, integral }))
-         uni.setStorageSync('token', token)
+         const { uname, nickname, avatar, insertId, token, userIntegral } = res.data
+         // 储存用户信息
+         updateUserInfo({ uname, nickname, avatar, id: insertId, userIntegral })
+          // 存储token
+         uni.setStorageSync('TOKEN', token)
          // 跳转理由
          uni.switchTab({ url: '/pages/personal/personal' })
       } else {

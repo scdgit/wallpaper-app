@@ -252,3 +252,25 @@ export const loadOneImg = (url: string): Promise<boolean> => {
       })
    })
 }
+
+/**
+ * 格式化时间戳
+ * @param timestamp 
+ * @returns 
+ */
+export const formatTimestamp = (timestamp: number) => {
+   const date = new Date(timestamp);
+   const year = date.getFullYear();
+   const month = date.getMonth() + 1;
+   const day = date.getDate();
+   const hours = date.getHours();
+   const minutes = date.getMinutes();
+   const seconds = date.getSeconds();
+
+   const formattedDate = year + '年' + month + '月' + day + '日' + formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
+
+   return formattedDate;
+}
+function formatTime(time) {
+   return time < 10 ? '0' + time : time;
+}

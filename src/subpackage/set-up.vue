@@ -26,7 +26,7 @@ const loginOut = () => {
          if (confirm) {
             clearUserData()
             uni.showToast({ title: '清除成功' })
-            uni.navigateTo({ url: '/pages/login/login' })
+            uni.navigateTo({ url: '/pages/loading/loading' })
          }
       },
    })
@@ -38,8 +38,8 @@ const doExit = () => {
       content: '是否退出登陆',
       success({ confirm }) {
          if (confirm) {
-            uni.removeStorageSync('userinfo')
-            uni.removeStorageSync('token')
+            uni.removeStorageSync('USER_INFO')
+            uni.removeStorageSync('TOKEN')
             uni.reLaunch({ url: '/subpackage/login-user' })
          }
       },
@@ -94,17 +94,18 @@ const doExit = () => {
 
    .container {
       margin-top: 40rpx;
-      padding: 36rpx 40rpx;
       background-color: #fff;
+      border-radius: 8rpx;
+      overflow-x: hidden;
 
       .item {
          position: relative;
          display: flex;
          justify-content: space-between;
          color: #595959;
-
-         &.m-b-20 {
-            margin-bottom: 40rpx;
+         padding: 30rpx 40rpx;
+         &:active {
+            background-color: #efefef;
          }
 
          .right {

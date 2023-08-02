@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import { getUserInfoVal } from '@/hooks/user'
+import { createOrderApi } from '@/api/pay'
+import { encryptData, formatTimestamp } from '@/utils'
+
 const paymentOptions = [
    { value: '5', text: '100' },
    { value: '10', text: '220' },
@@ -7,10 +11,17 @@ const paymentOptions = [
    { value: '25', text: '700' },
    { value: '30', text: '1000' }
 ]
-const totalAmount = ref<string>() // 总金额
-// 去支付
-const toPay = (amount: string) => {
+const totalAmount = ref<string>() // 订单金额
+const orderIntegral = ref<number>() // 订单积分
+
+/**
+ * 去支付
+ * @param amount [string] 支付金额
+ * @param addIntegral [number] 充值的积分
+ */
+const toPay = (amount: string, addIntegral: number) => {
    totalAmount.value = amount
+   orderIntegral.value = addIntegral
    uni.showModal({
       content: `总计：${amount}￥`,
       confirmText: '付款',
@@ -19,6 +30,7 @@ const toPay = (amount: string) => {
             createPayOrde()
          } else {
             totalAmount.value = null
+            orderIntegral.value = null
          }
       }
    })
@@ -28,29 +40,41 @@ const toPay = (amount: string) => {
 const createPayOrde = () => {
    if (!totalAmount.value) return uni.showToast({ title: '金额错误', icon: 'none' })
    uni.showLoading({ title: '创建订单中' })
-   uni.request({
-      url: '/api/payment/inPerson',
-      method: 'POST',
-      data: {
-         totalAmount: totalAmount.value
-      },
-      success: (res: any) => {
-         const { alipay_trade_precreate_response: r } = res.data
-         if (r.code === '10000') {
-            const ordeInfo = {
-               total_amount: totalAmount.value,
-               qr_code: r.qr_code,
-               out_trade_no: r.out_trade_no,
-               trade_no: r.trade_no
-            }
-            uni.hideLoading()
-            uni.navigateTo({
-               url: `/subpackage/payment?ordeInfo=${JSON.stringify(ordeInfo)}`
-            })
-         } else {
-            uni.showToast({ title: '订单创建失败', icon: 'error' })
+   const uId = Number(getUserInfoVal('id'))
+   const orderTime = (new Date()).getTime()
+   createOrderApi({
+      totalAmount: totalAmount.value,
+      orderIntegral: orderIntegral.value,
+      uId, orderTime
+   }).then((res: any) => {
+      const { alipay_trade_precreate_response: r } = res.data
+      if (r.code === '10000') {
+         const ordeInfo = {
+            total_amount: totalAmount.value, // 总金额
+            qr_code: r.qr_code, // 二维码
+            out_trade_no: r.out_trade_no, // 订单号
+            order_integral: orderIntegral.value, // 订单积分
+            u_id: uId, // 用户ID
+            order_time: formatTimestamp(orderTime) // 下单时间
          }
+         uni.hideLoading()
+         // 记录支付订单号，解决支付超时无法更新积分
+         uni.setStorageSync('PAY_ORDE_NUM', encryptData({
+            outTradeNo: r.out_trade_no, // 订单号
+            tradeNo: r.trade_no, //商户号
+            orderIntegral: orderIntegral.value, // 订单积分
+            uId: uId // 当前账号的ID
+         }))
+         uni.navigateTo({
+            url: `/subpackage/payment?ordeInfo=${JSON.stringify(ordeInfo)}`
+         })
+      } else {
+         uni.hideLoading()
+         uni.showToast({ title: '订单创建失败', icon: 'error' })
       }
+   }).catch(res => {
+      uni.hideLoading()
+      console.log(res.data.msg)
    })
 }
 
@@ -69,7 +93,8 @@ const back = () => {
          <view class="title">充值获取</view>
          <view class="options">
             <view v-for="item of paymentOptions" :key="item.text" class="pay-item"
-               :class="{ active: totalAmount === item.value }" @click="toPay(item.value)">{{ item.text }}积分</view>
+               :class="{ active: totalAmount === item.value }" @click="toPay(item.value, Number(item.text))">{{ item.text
+               }}积分</view>
          </view>
       </view>
       <!-- 查看广告获取 -->

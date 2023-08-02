@@ -1,10 +1,10 @@
 <template>
-	<view class="login-box">
+	<view class="loading-box">
 		<image :src="`${BASE_URL}/background/b2.jpeg`" mode="aspectFill" class="pic" @load="imgLoad"/>
 	</view> 
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // import { encryptData } from '@/utils'
 import { initMainJsonData, getExpansionApi, getNovelData } from '@/api'
 import { BASE_URL } from '@/config'
@@ -44,7 +44,7 @@ const imgLoad = () => {
 </script>
 
 <style scoped lang="scss">
-.login-box {
+.loading-box {
 	width: 100vw;
 	height: 100vh;
 	text-align: center;

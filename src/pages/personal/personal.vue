@@ -1,27 +1,35 @@
 <script setup lang="ts">
-import { USE_MANUAL, BASE_URL } from '@/config'
-import { documentPreview, getWindowHeight } from '@/utils'
-import type { UserType } from '@/type'
-
-const initUser = {
-   id: null,
-   nickname: '',
-   avatar: '',
-   integral: null
-}
+import { getWindowHeight, decryptData } from '@/utils'
+import { useUserinfo, initUserInfo, updateUserInfoItem } from '@/hooks/user'
+import { queryPayOrderApi } from '@/api/pay'
+import { tokenRequest } from '@/utils/request'
 
 // 是否处于编辑状态
 const isEdit = ref<boolean>(false)
 const windowHeight = ref<string>()
 const token = ref<string>(null) // 登录授权
-let userinfo = reactive<UserType>(initUser)
 
-onLoad(() => {
-   token.value = uni.getStorageSync('token')
-   userinfo = uni.getStorageSync('userinfo') ? JSON.parse(uni.getStorageSync('userinfo')) : initUser
+onLoad(async () => {
+   initUserInfo()
+   token.value = uni.getStorageSync('TOKEN')
    getWindowHeight().then((H: number) => {
       windowHeight.value = H + 'px'
    })
+   // 处理支付异常的订单记录
+   let abnormalOrders = uni.getStorageSync('PAY_ORDE_NUM')
+   if (abnormalOrders) {
+      try {
+         abnormalOrders = decryptData(abnormalOrders)
+         await queryPayOrderApi(abnormalOrders)
+         const selectRes = await tokenRequest('GET', '/api/user/getIntegral', { uId: abnormalOrders.uId })
+         updateUserInfoItem('userIntegral', selectRes.data.userIntegral)
+         uni.removeStorageSync('PAY_ORDE_NUM')
+      } catch(err) {
+         console.error(err)
+         uni.removeStorageSync('PAY_ORDE_NUM')
+         uni.showToast({title: '异常订单解析失败，请申请订单售后服务', icon: 'error'})
+      }
+   }
 })
 
 //编辑头像
@@ -33,8 +41,8 @@ const editAvatar = () => {
          uni.chooseImage({ count: 1, sourceType: ['camera'] }).then((imageObj) => {
             uni.showLoading({ title: '上传中...' })
             setTimeout(() => {
-               userinfo.avatar = imageObj.tempFilePaths[0]
-               uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+               const avatar = imageObj.tempFilePaths[0]
+               updateUserInfoItem('avatar', avatar)
                uni.hideLoading()
             }, 1000)
          })
@@ -43,8 +51,8 @@ const editAvatar = () => {
          uni.chooseImage({ count: 1, sourceType: ['album'] }).then((imageObj) => {
             uni.showLoading({ title: '上传中...' })
             setTimeout(() => {
-               userinfo.avatar = imageObj.tempFilePaths[0]
-               uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+               const avatar = imageObj.tempFilePaths[0]
+               updateUserInfoItem('avatar', avatar)
                uni.hideLoading()
             }, 1000)
          })
@@ -58,8 +66,8 @@ const editNickname = () => {
       if (!inp.content.trim()) return uni.showToast({ title: '内容不能为空', icon: 'error' })
       uni.showLoading({ title: '上传中...' })
       setTimeout(() => {
-         userinfo.nickname = inp.content
-         uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+         const nickname = inp.content
+         updateUserInfoItem('nickname', nickname)
          uni.hideLoading()
       }, 1000)
    })
@@ -73,11 +81,11 @@ const goTo = (fullpath: string) => {
 
 <!-- 个人中心页面 -->
 <template>
-   <view v-if="token" class="personal-page page" :style="{ height: windowHeight }">
+   <view v-if="token && useUserinfo.id" class="personal-page page" :style="{ height: windowHeight }">
       <!-- 用户信息 -->
       <view class="user-info">
-         <image :src="userinfo.avatar || `/static/avatar.png`" class="avatar" mode="aspectFill" @click="editAvatar" />
-         <text class="name" @click="editNickname">{{ userinfo.nickname || '待完善' }}</text>
+         <image :src="useUserinfo.avatar" class="avatar" mode="aspectFill" @click="editAvatar" />
+         <text class="name" @click="editNickname">{{ useUserinfo.nickname || '待完善' }}</text>
       </view>
       <!-- 方块列表 -->
       <view class="blocak-list">
@@ -93,7 +101,7 @@ const goTo = (fullpath: string) => {
          <!-- 积分 -->
          <view class="item" style="background-color:#EEC60A;">
             <text class="title">积分</text>
-            <text class="text">{{ userinfo.integral }}</text>
+            <text class="text">{{ useUserinfo.userIntegral }}</text>
          </view>
       </view>
       <!-- 按钮栏 -->

@@ -1,25 +1,29 @@
 <script lang="ts" setup>
 import QrCode from '@/components/QrCode.vue'
-import { queryPayOrder } from '@/api'
-import { saveImgToAlbum } from '@/utils'
+import { queryPayOrderApi } from '@/api/pay'
+import { saveImgToAlbum, decryptData } from '@/utils'
+import { tokenRequest } from '@/utils/request'
+import { updateUserInfo } from '@/hooks/user'
+import type { orderType } from '@/type'
 
 const qrcodeUrl = ref<string>(null)  // 支付二维码链接
 const noticeTxt = ref<string>() // 提示文本
 const countdown = ref<number>(5) // 倒计时
 const payStatus = ref<boolean>(false) // 支付状态
+let params = ref<orderType>() // 路由参数
 let payTimer = null
 let outTradeNo: string // 支付的订单号
-let tradeNo: string // 商户号
-let totalAmount: string
 let isTimeout = ref<boolean>(false) // 是否超时
 let codeBase64 = ref<string>() // 二维码
+let uId: number // 用户ID
+let orderIntegral: number // 订单积分
 
 onLoad((options) => {
-   const { total_amount, out_trade_no, trade_no, qr_code } = JSON.parse(options.ordeInfo) || {}
-   totalAmount = total_amount
-   outTradeNo = out_trade_no
-   tradeNo = trade_no
-   qrcodeUrl.value = qr_code
+   params.value = JSON.parse(options.ordeInfo)
+   outTradeNo = params.value.out_trade_no
+   qrcodeUrl.value = params.value.qr_code
+   uId = params.value.u_id
+   orderIntegral = params.value.order_integral
    paymentListen()
 })
 
@@ -27,15 +31,20 @@ onLoad((options) => {
 const paymentListen = () => {
    if (payStatus.value) return noticeTxt.value = '该订单已完成'
    payTimer = setTimeout(() => {
-      clearInterval(payTimer)
+      clearTimeout(payTimer)
       if (isTimeout.value) return
-      queryPayOrder(outTradeNo, tradeNo).then((queryRes: any) => {
+      queryPayOrderApi({outTradeNo, orderIntegral, uId}).then(async (queryRes: any) => {
          console.log(queryRes.data)
          const { code, status } = queryRes.data
          if (code === '10000') {
             switch (status) {
                case 'TRADE_SUCCESS': noticeTxt.value = '支付成功！'
+                  // 清除本地支付订单号的记录
+                  uni.removeStorageSync('PAY_ORDE_NUM')
                   payStatus.value = true
+                  // eslint-disable-next-line no-case-declarations
+                  const selectRes = await tokenRequest('GET', '/api/user/userinfo', { uId })
+                  updateUserInfo(selectRes.data)
                   setTime()
                   break
                default:
@@ -55,27 +64,16 @@ onMounted(() => {
    setTimeout(() => {
       if (!payStatus.value) {
          clearInterval(payTimer)
-         noticeTxt.value = '支付超时，请刷新二维码重新保存支付！'
+         noticeTxt.value = '支付超时，付款后请点击`已支付`按钮确认！'
          isTimeout.value = true
       }
-   }, 1000 * 45)
+   }, 1000 * 10)
 })
 
 const back = () => {
    clearInterval(payTimer)
    qrcodeUrl.value = null
    uni.reLaunch({ url: '/subpackage/integral' })
-}
-
-// 刷新二维码
-const doRefresh = () => {
-   const ordeInfo = {
-      total_amount: totalAmount,
-      qr_code: qrcodeUrl.value,
-      out_trade_no: outTradeNo,
-      trade_no: tradeNo
-   }
-   uni.reLaunch({ url: `/subpackage/payment?ordeInfo=${JSON.stringify(ordeInfo)}` })
 }
 
 // 回到我的页面
@@ -95,22 +93,42 @@ const setTime = () => {
       }
    }, 1000)
 }
+
+// 复制订单号
+const copyOrderNum = (orderNum: string) => {
+   uni.setClipboardData({
+      data: orderNum,
+      success: () => {
+         uni.showToast({ title: '已复制到剪切板' })
+      },
+      fail: (err) => {
+         uni.showToast({ title: '权限不够，复制失败', icon: 'error' })
+      }
+   })
+}
+
+// 支付超时点击确认订单已支付按钮
+const payConfirmBtn = () => {
+   isTimeout.value = false
+   paymentListen()
+}
 </script>
 
 <template>
    <view class="payment-res">
       <view class="container">
          <view class="title">支付宝扫一扫，向我付款</view>
-         <!-- 订单信息 -->
-         <view class="orde-info">
-
-         </view>
          <!-- 二维码 -->
          <view class="code-box">
             <QrCode :codeUrl="qrcodeUrl">
-               <template v-if="isTimeout" #extend>
-                  <view class="code-msk" @click="doRefresh">
-                     <svg-icon icon="refresh" :size="80" color="skyblue" />
+               <template #extend>
+                  <!-- 支付超时 -->
+                  <view v-if="isTimeout" class="code-msk">
+                     <svg-icon icon="pay-err" :size="80" color="skyblue" />
+                  </view>
+                  <!-- 支付成功 -->
+                  <view v-if="payStatus" class="code-msk">
+                     <svg-icon icon="pay-ok" :size="80"/>
                   </view>
                </template>
             </QrCode>
@@ -124,7 +142,13 @@ const setTime = () => {
          </view>
          <!-- 倒计时 -->
          <view v-if="payStatus" class="countdown"><text class="text">{{ countdown }}s</text> 后跳转页面</view>
-         <!-- 刷新二维码 -->
+         <!-- 订单信息 -->
+         <view class="orde-info">
+            <text>订单描述：积分充值</text>
+            <text>充值积分：{{ params.order_integral }}</text>
+            <text>订单号：{{ params.out_trade_no }}<text class="copy-order-num" @click="copyOrderNum(params.out_trade_no)">复制</text></text>
+            <text>下单时间：{{ params.order_time }}</text>
+         </view>
          <view class="pay-record">
             <view>
                <svg-icon icon="record" :size="16" color="#444" />
@@ -135,9 +159,14 @@ const setTime = () => {
       </view>
       <!-- 底部操作按钮 -->
       <view class="btns">
+         <!-- 返回按钮 -->
          <view class="back" @click="back">
             <svg-icon icon="back" :size="15" color="#444" />
             <view>返回</view>
+         </view>
+         <!-- 支付超时确认支付按钮 -->
+         <view>
+            <button v-if="isTimeout" size="mini" type="primary" @click="payConfirmBtn">已支付</button>
          </view>
       </view>
    </view>
@@ -145,24 +174,22 @@ const setTime = () => {
 
 <style scoped lang="scss">
 .payment-res {
-   height: 100vh;
    padding: 36rpx;
    box-sizing: border-box;
    background-color: #108FEA;
    display: flex;
    flex-direction: column;
-
    .container {
       position: relative;
       width: 100%;
-      min-height: 800rpx;
+      min-height: 940rpx;
       background-color: #fff;
       margin-top: 40rpx;
       display: flex;
       flex-direction: column;
       align-items: center;
       font-size: 28rpx;
-      padding: 20rpx;
+      padding: 20rpx 20rpx 80rpx;
       box-sizing: border-box;
 
       .title {
@@ -212,7 +239,23 @@ const setTime = () => {
             color: red;
          }
       }
-
+      .orde-info {
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: flex-start;
+         margin-top: 40rpx;
+         margin-left: 40rpx;
+         box-sizing: border-box;
+         line-height: 46rpx;
+         .copy-order-num {
+            background-color: #108FEA;
+            color: #fff;
+            font-size: 20rpx;
+            padding: 2rpx 4rpx;
+            margin-left: 10rpx;
+         }
+      }
       .pay-record {
          position: absolute;
          bottom: 0;

@@ -32,13 +32,13 @@ const goToDetail = (tag: 'wall' | 'novel' | 'comic') => {
       </view>
       <view class="title">收藏夹</view>
       <view class="container">
-         <view class="item m-b-20" @click="goToDetail('wall')">
+         <view class="item" @click="goToDetail('wall')">
             <text class="text">图片</text>
             <view class="right">
                <svg-icon icon="arrow-r" color="#999" :size="12" />
             </view>
          </view>
-         <view class="item m-b-20" @click="goToDetail('novel')">
+         <view class="item" @click="goToDetail('novel')">
             <text class="text">小说</text>
             <view class="right">
                <svg-icon icon="arrow-r" color="#999" :size="12" />
@@ -74,17 +74,19 @@ const goToDetail = (tag: 'wall' | 'novel' | 'comic') => {
 
    .container {
       margin-top: 40rpx;
-      padding: 36rpx 40rpx;
       background-color: #fff;
+      border-radius: 8rpx;
+      overflow-x: hidden;
 
       .item {
          position: relative;
          display: flex;
          justify-content: space-between;
          color: #595959;
-
-         &.m-b-20 {
-            margin-bottom: 40rpx;
+         box-sizing: border-box;
+         padding: 30rpx 40rpx;
+         &:active {
+            background-color: #efefef;
          }
 
          .right {

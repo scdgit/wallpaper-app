@@ -1,5 +1,5 @@
 import { JSON_URL, BASE_URL, PROXY_API, WEB_IMG_API } from '@/config'
-import { BookType, ImgType } from '@/type'
+import { ImgType } from '@/type'
 import { useDeviceType } from '@/hooks'
 import { getUrl } from '@/utils'
 /**
@@ -107,20 +107,6 @@ export const novelCurrentPageContent = (num: number, bookname: string): Promise<
             reject(err)
          }
       })
-   })
-}
-
-/**
- * 解析订单是否支付成功
- * @param tradeNo 商户号
- * @param outTradeNo 订单号
- * @returns Promise
- */
-export const queryPayOrder = (outTradeNo: string, tradeNo: string) => {
-   return uni.request({
-      url: '/api/payment/queryOrder',
-      method: 'POST',
-      data: { outTradeNo, tradeNo }
    })
 }
 

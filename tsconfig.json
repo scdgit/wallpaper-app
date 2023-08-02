@@ -13,7 +13,8 @@
       "dom"
     ],
     "types": [
-      "@dcloudio/types"
+      "@dcloudio/types",
+      "@uni-helper/uni-app-types" // 修复button组件type属性报错的第三方包
     ]
   },
   "include": [

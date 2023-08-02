@@ -47,9 +47,10 @@ export interface BookType {
 // 用户类型
 export interface UserType {
    id: number
+   uname: string
    nickname: string
    avatar: string
-   integral: string // 积分
+   userIntegral: number // 积分
 }
 
 // 漫画章节类型
@@ -78,4 +79,15 @@ export interface ComicFavoritesItemType {
 export interface ChapterActiveType {
    bookname: string
    active: number
+}
+
+// 订单参数类型
+export interface orderType {
+   total_amount: string // 订单金额
+   out_trade_no: string // 订单号
+   trade_no?: string // 商户号
+   qr_code: string // 二维码
+   u_id: number // 支付者ID
+   order_integral: number // 订单积分
+   order_time: number // 订单创建时间戳
 }
