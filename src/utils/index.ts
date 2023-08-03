@@ -267,10 +267,60 @@ export const formatTimestamp = (timestamp: number) => {
    const minutes = date.getMinutes();
    const seconds = date.getSeconds();
 
-   const formattedDate = year + '年' + month + '月' + day + '日' + formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
+   const formattedDate = year + '-' + month + '-' + day + ' ' + formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
 
    return formattedDate;
 }
 function formatTime(time) {
    return time < 10 ? '0' + time : time;
+}
+
+/**
+ * 根据时间戳判断是今天还是昨天
+ * @param timestamp 时间戳
+ * @returns string
+ */
+export const checkDate = (timestamp: number): '今天' | '昨天' | '其他日期' => {
+   const date = new Date(timestamp);
+   const currentDate = new Date();
+   const currentYear = currentDate.getFullYear();
+   const currentMonth = currentDate.getMonth();
+   const currentDay = currentDate.getDate();
+
+   const dateYear = date.getFullYear();
+   const dateMonth = date.getMonth();
+   const dateDay = date.getDate();
+
+   if (
+      currentYear === dateYear &&
+      currentMonth === dateMonth &&
+      currentDay === dateDay
+   ) {
+      return '今天';
+   } else if (
+      currentYear === dateYear &&
+      currentMonth === dateMonth &&
+      currentDay - dateDay === 1
+   ) {
+      return '昨天';
+   } else {
+      // 其他情况
+      return '其他日期';
+   }
+}
+
+/**
+ * 复制内容到剪切板
+ * @param orderNum 内容
+ */
+export const copyOrderNum = (orderNum: string) => {
+   uni.setClipboardData({
+      data: orderNum,
+      success: () => {
+         uni.showToast({ title: '已复制到剪切板' })
+      },
+      fail: (err) => {
+         uni.showToast({ title: '权限不够，复制失败', icon: 'error' })
+      }
+   })
 }

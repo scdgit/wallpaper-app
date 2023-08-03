@@ -95,7 +95,7 @@ const toggleChapter = (type: 'prev' | 'next') => {
 <template>
    <view class="comic-detail">
       <view class="scroll-view">
-         <scroll-view class="scroll-view-box" scroll-y="true">
+         <scroll-view class="scroll-view-box" :scroll-y="true">
             <view class="header">{{ bookname }}-第{{ Number(chapter.num) }}章</view>
             <view class="pic-box">
                <LoadImg v-for="(item) of imgArr" :key="item" :url="item" />

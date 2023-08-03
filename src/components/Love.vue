@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useWallFavorites, updateWallpaper } from '@/hooks'
+import { useWallFavorites, updateWallpaper } from '@/hooks/wallpaper'
 import { ImgType } from '@/type'
 
 const props: any = defineProps({

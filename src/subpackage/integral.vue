@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getUserInfoVal } from '@/hooks/user'
+import { getUserInfoKeyVal } from '@/hooks/user'
 import { createOrderApi } from '@/api/pay'
 import { encryptData, formatTimestamp } from '@/utils'
 
@@ -40,7 +40,7 @@ const toPay = (amount: string, addIntegral: number) => {
 const createPayOrde = () => {
    if (!totalAmount.value) return uni.showToast({ title: '金额错误', icon: 'none' })
    uni.showLoading({ title: '创建订单中' })
-   const uId = Number(getUserInfoVal('id'))
+   const uId = Number(getUserInfoKeyVal('id'))
    const orderTime = (new Date()).getTime()
    createOrderApi({
       totalAmount: totalAmount.value,
@@ -93,8 +93,7 @@ const back = () => {
          <view class="title">充值获取</view>
          <view class="options">
             <view v-for="item of paymentOptions" :key="item.text" class="pay-item"
-               :class="{ active: totalAmount === item.value }" @click="toPay(item.value, Number(item.text))">{{ item.text
-               }}积分</view>
+               :class="{ active: totalAmount === item.value }" @click="toPay(item.value, Number(item.text))">{{ item.text }}积分</view>
          </view>
       </view>
       <!-- 查看广告获取 -->

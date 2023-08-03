@@ -23,7 +23,7 @@
 import type { ImgType } from '@/type'
 import { elementStyle, encryptData } from '@/utils'
 import { getJsonColumnData } from '@/api'
-import { initPreviewData } from '@/hooks'
+import { initPreviewData } from '@/hooks/wallpaper'
 
 const props = defineProps({
    room: { // 哪一个仓库地址(图片)

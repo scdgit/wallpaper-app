@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ImgType } from '@/type'
 import { encryptData } from '@/utils'
-import { initPreviewData } from '@/hooks'
+import { initPreviewData } from '@/hooks/wallpaper'
 
 const props = defineProps({
    data: {

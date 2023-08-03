@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { decryptData } from '@/utils'
 import { novelCurrentPageContent } from '@/api'
-import { useBookStartContent, initBookDetailContent } from '@/hooks'
+import { useBookStartContent, initBookDetailContent } from '@/hooks/novel'
 
 let total: number
 let bookname: string

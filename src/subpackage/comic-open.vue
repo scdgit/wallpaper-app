@@ -134,7 +134,7 @@ const toggleChapter = (index: number, chapter: ComicChapterType) => {
       <!-- 章节列表 -->
       <uni-drawer ref="menuEle" mode="left">
          <view class="scroll-view">
-            <scroll-view class="scroll-view-box" scroll-y="true">
+            <scroll-view class="scroll-view-box" :scroll-y="true">
                <view class="close-menu">
                   <button @click="closeDrawer"><text class="word-btn-white">关闭</text></button>
                </view>

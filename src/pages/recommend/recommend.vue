@@ -2,7 +2,7 @@
 import WaterFallFlow from '@/components/waterfall-flow.vue'
 import Love from '@/components/Love.vue'
 import type { ColumnType } from '@/type'
-import { initWallpaper } from '@/hooks'
+import { initWallpaper } from '@/hooks/wallpaper'
 import { AVATAR_URL } from '@/config'
 
 let navValue = ref<number>(0)
@@ -85,7 +85,7 @@ const closeMenu = () => {
          <view v-for="(item, index) of range" :key="index" class="nav-content"
             :style="{ transform: `translateX(${-navValue * 100}%)` }">
             <transition name="fade">
-               <WaterFallFlow v-show="navValue === index" :room="item.room" :column="2" :space="10" :limit="limit"
+               <WaterFallFlow v-if="navValue === index" :room="item.room" :column="2" :space="10" :limit="limit"
                   :loadMore="true" :round="6" :index="index">
                   <template #desc="desc">
                      <view class="desc-box">

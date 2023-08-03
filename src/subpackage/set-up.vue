@@ -48,7 +48,6 @@ const doExit = () => {
 </script>
 
 <!-- 个人中心的设置页面 -->
-
 <template>
    <view class="set-up" :style="{ height: windowHeight }">
       <view class="back" @click="back">
@@ -77,7 +76,7 @@ const doExit = () => {
 <style scoped lang="scss">
 .set-up {
    background-color: #F8F8F8;
-   overflow: hidden;
+   overflow-x: hidden;
    padding: 40rpx;
    box-sizing: border-box;
 

@@ -7,7 +7,8 @@ const props = defineProps({
    params: {
       type: Object,
       default: null
-   }
+   },
+
 })
 // 返回
 const back = () => {
@@ -17,7 +18,7 @@ const back = () => {
       for (let key in props.params) {
          str += `${key}=${props.params[key]}&`
       }
-      url += str
+      url += str.slice(0, str.length - 1)
    }
    uni.reLaunch({ url })
 }

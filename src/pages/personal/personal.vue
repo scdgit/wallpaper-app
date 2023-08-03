@@ -120,9 +120,9 @@ const goTo = (fullpath: string) => {
                <svg-icon icon="arrow-r" :size="15" color="#999" />
             </view>
          </view>
-         <view class="btn">
-            <svg-icon icon="about" :size="20" color="#1093ED" />
-            <text class="text">关于我们</text>
+         <view class="btn" @click="goTo('/subpackage/pay-order')">
+            <svg-icon icon="order" :size="20" color="#10A6E2" />
+            <text class="text">我的订单</text>
             <view class="arraw">
                <svg-icon icon="arrow-r" :size="15" color="#999" />
             </view>

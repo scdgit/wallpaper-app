@@ -1,50 +1,3 @@
-<template>
-   <view class="wallpaper">
-      <!-- 图片预览 -->
-      <swiper class="swiper" vertical :duration="duration" :current="index" @change="toggleImg">
-         <swiper-item v-for="(item, i) of usePreviewData" :key="i">
-            <view v-if="i >= index - 1 && i <= index + 1" class="preview">
-               <MyImage :src="item.url" mode="widthFix" />
-               <view class="tool">
-                  <view class="tool-item">
-                     <img v-if="item.avatar" class="avatar grad-animation" :src="`${AVATAR_URL}/${item.avatar}`" lazy-load />
-                     <img v-else class="avatar" src="@static/avatar.png" lazy-load />
-                  </view>
-                  <view class="tool-item">
-                     <Love :target="item" type="heart-filled" color="#fff"/>
-                     <text class="text">{{ item.love }}</text>
-                  </view>
-                  <view class="tool-item">
-                     <uni-icons type="download-filled" color="#fff" @click="toDownload(img)" /><!-- 下载 -->
-                     <text class="text">下载</text>
-                  </view>
-                  <!-- 分享 -->
-                  <view v-if="deviceType === 'app'" class="tool-item" @click="shareByApp">
-                     <uni-icons type="redo-filled" color="#fff" />
-                     <text class="text">分享</text>
-                  </view>
-                  <view v-else-if="deviceType === 'web'" class="tool-item" @click="shareWeb">
-                     <uni-icons type="redo-filled" color="#fff" />
-                     <text class="text">分享</text>
-                  </view>
-                  <label v-else class="tool-item" for="share-btn">
-                     <uni-icons type="redo-filled" color="#fff" />
-                     <text class="text">分享</text>
-                  </label>
-                  <view class="tool-item" @click="goBack">
-                     <view class="back">
-                        <uni-icons type="pulldown" color="#fff" /><!-- 返回 -->
-                     </view>
-                     <text class="text">返回</text>
-                  </view>
-               </view>
-               <button id="share-btn" open-type="share" style="display: none;" />
-            </view>
-         </swiper-item>
-      </swiper>
-   </view>
-</template>
-
 <script setup lang="ts">
 import MyImage from '@/components/MyImage.vue'
 import Love from '@/components/Love.vue'
@@ -52,7 +5,7 @@ import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { HOST, AVATAR_URL } from '@/config'
 import type { ImgType } from '@/type'
 import { decryptData, saveImgToAlbum } from '@/utils'
-import { useWallFavorites, updateWallpaper, previewTargetIndex, usePreviewData } from '@/hooks'
+import { useWallFavorites, updateWallpaper, previewTargetIndex, usePreviewData } from '@/hooks/wallpaper'
 
 let img: ImgType // 图片对象
 const deviceType = uni.getStorageSync('deviceType') // 当前设备类型
@@ -158,6 +111,54 @@ const toDownload = async (img: ImgType) => {
    saveImgToAlbum(img.url)
 }
 </script>
+
+<!-- 上下滑动图片预览页面 -->
+<template>
+   <view class="wallpaper">
+      <!-- 图片预览 -->
+      <swiper class="swiper" vertical :duration="duration" :current="index" @change="toggleImg">
+         <swiper-item v-for="(item, i) of usePreviewData" :key="i">
+            <view v-if="i >= index - 1 && i <= index + 1" class="preview">
+               <MyImage :src="item.url" mode="widthFix" />
+               <view class="tool">
+                  <view class="tool-item">
+                     <img v-if="item.avatar" class="avatar grad-animation" :src="`${AVATAR_URL}/${item.avatar}`" lazy-load />
+                     <img v-else class="avatar" src="@static/avatar.png" lazy-load />
+                  </view>
+                  <view class="tool-item">
+                     <Love :target="item" type="heart-filled" color="#fff"/>
+                     <text class="text">{{ item.love }}</text>
+                  </view>
+                  <view class="tool-item">
+                     <uni-icons type="download-filled" color="#fff" @click="toDownload(img)" /><!-- 下载 -->
+                     <text class="text">下载</text>
+                  </view>
+                  <!-- 分享 -->
+                  <view v-if="deviceType === 'app'" class="tool-item" @click="shareByApp">
+                     <uni-icons type="redo-filled" color="#fff" />
+                     <text class="text">分享</text>
+                  </view>
+                  <view v-else-if="deviceType === 'web'" class="tool-item" @click="shareWeb">
+                     <uni-icons type="redo-filled" color="#fff" />
+                     <text class="text">分享</text>
+                  </view>
+                  <label v-else class="tool-item" for="share-btn">
+                     <uni-icons type="redo-filled" color="#fff" />
+                     <text class="text">分享</text>
+                  </label>
+                  <view class="tool-item" @click="goBack">
+                     <view class="back">
+                        <uni-icons type="pulldown" color="#fff" /><!-- 返回 -->
+                     </view>
+                     <text class="text">返回</text>
+                  </view>
+               </view>
+               <button id="share-btn" open-type="share" style="display: none;" />
+            </view>
+         </swiper-item>
+      </swiper>
+   </view>
+</template>
 
 <style scoped lang="scss">
 .wallpaper {

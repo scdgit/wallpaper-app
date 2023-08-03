@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Back from '@/components/Back.vue'
 import Title from '@/components/Title.vue'
-import { useNovels, initNovels } from '@/hooks'
+import { useNovels, initNovels } from '@/hooks/novel'
 import { BookType } from '@/type'
 import { encryptData } from '@/utils'
 

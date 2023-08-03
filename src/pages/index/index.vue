@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import Banner from '@/components/Banner.vue'
 import type { ImgType, ExpansionApisType } from '@/type'
-import { decryptData, targetObjData } from '@/utils'
-import { useDeviceType, goToPreview, initNovels } from '@/hooks'
+import { targetObjData } from '@/utils'
+import { useDeviceType } from '@/hooks'
+import { goToPreview } from '@/hooks/wallpaper'
+import { initNovels } from '@/hooks/novel'
 import { useComicMainJson, initComicMainJson } from '@/hooks/comic'
 import { BASE_URL, NOTICE_TEXT, COLUMN_BASE_URL } from '@/config'
 
@@ -74,7 +76,7 @@ const exitTextBox = () => {
 const goToNovelPage = () => {
    initNovels()
    uni.navigateTo({
-      url: '/pages/novel/novel'
+      url: '/subpackage/novel'
    })
 }
 
@@ -135,10 +137,10 @@ const goTo = (url: string, params?: object) => {
             </view>
             <view class="column-content">
                <view class="image-box">
-                  <image src="@static/column1.png" class="image" mode="widthFix" />
+                  <image src="@static/column1.png" class="image" mode="aspectFill" />
                </view>
                <view class="image-box">
-                  <image src="@static/column1.png" class="image" mode="widthFix" />
+                  <image src="@static/column1.png" class="image" mode="aspectFill" />
                </view>
             </view>
          </view>
@@ -146,7 +148,7 @@ const goTo = (url: string, params?: object) => {
             <view class="column-title">
                <uni-section title="漫画推荐" type="line">
                   <template #right>
-                     <text class="text" @click="goTo('/pages/comic/comic')">查看更多</text>
+                     <text class="text" @click="goTo('/subpackage/comic')">查看更多</text>
                      <uni-icons type="forward" size="24rpx" color="#A5A5A5" />
                   </template>
                </uni-section>
@@ -297,6 +299,7 @@ const goTo = (url: string, params?: object) => {
 
             .image-box {
                width: 336rpx;
+               height: 160rpx;
             }
          }
       }

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import WaterFallFlow from '@/components/waterfall-flow.vue'
-import { useWallFavorites, initWallpaper, useCollectBooks, initCollectBooks } from '@/hooks'
+import { useWallFavorites, initWallpaper } from '@/hooks/wallpaper'
+import { useCollectBooks, initCollectBooks } from '@/hooks/novel'
 import { BookType } from '@/type'
 import { getWindowHeight, encryptData } from '@/utils'
 

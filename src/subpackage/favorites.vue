@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { getWindowHeight } from '@/utils'
-import { initWallpaper, initCollectBooks } from '@/hooks'
+import { initWallpaper } from '@/hooks/wallpaper'
+import { initCollectBooks } from '@/hooks/novel'
 
 const windowHeight = ref<string>()
 

@@ -30,10 +30,10 @@ export const updateUserInfo = (data: UserType) => {
 }
 
 /**
- * 获取用户积分
- * @returns 用户积分
+ * 获取用户key对应的val
+ * @returns key->val
  */
-export const getUserInfoVal = (key: string) => {
+export const getUserInfoKeyVal = (key: string) => {
    initUserInfo()
    if (!useUserinfo.value[key] && useUserinfo.value[key] !== 0 ) return console.error('用户积分获取失败,请检查存储用户信息的参数是否完整！')
    return useUserinfo.value[key]

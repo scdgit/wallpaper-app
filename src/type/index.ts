@@ -81,7 +81,7 @@ export interface ChapterActiveType {
    active: number
 }
 
-// 订单参数类型
+// 订单参数类型(记录异常订单的)
 export interface orderType {
    total_amount: string // 订单金额
    out_trade_no: string // 订单号
@@ -90,4 +90,15 @@ export interface orderType {
    u_id: number // 支付者ID
    order_integral: number // 订单积分
    order_time: number // 订单创建时间戳
+}
+
+// 支付订单类型(数据库订单)
+export interface payOrderType {
+   id: number 
+   outTradeNo: string
+   uId: number
+   totalAmount: string // 订单金额
+   orderIntegral: number // 订单积分
+   orderTime: number // 订单时间
+   status: 0 | 1 // 订单状态
 }

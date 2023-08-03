@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import QrCode from '@/components/QrCode.vue'
 import { queryPayOrderApi } from '@/api/pay'
-import { saveImgToAlbum, decryptData } from '@/utils'
+import { saveImgToAlbum, copyOrderNum } from '@/utils'
 import { tokenRequest } from '@/utils/request'
 import { updateUserInfo } from '@/hooks/user'
 import type { orderType } from '@/type'
@@ -94,18 +94,6 @@ const setTime = () => {
    }, 1000)
 }
 
-// 复制订单号
-const copyOrderNum = (orderNum: string) => {
-   uni.setClipboardData({
-      data: orderNum,
-      success: () => {
-         uni.showToast({ title: '已复制到剪切板' })
-      },
-      fail: (err) => {
-         uni.showToast({ title: '权限不够，复制失败', icon: 'error' })
-      }
-   })
-}
 
 // 支付超时点击确认订单已支付按钮
 const payConfirmBtn = () => {
@@ -146,7 +134,11 @@ const payConfirmBtn = () => {
          <view class="orde-info">
             <text>订单描述：积分充值</text>
             <text>充值积分：{{ params.order_integral }}</text>
-            <text>订单号：{{ params.out_trade_no }}<text class="copy-order-num" @click="copyOrderNum(params.out_trade_no)">复制</text></text>
+            <view class="order-num">
+               <view>订单号：
+                  {{ params.out_trade_no }}<text class="copy-order-num" @click="copyOrderNum(params.out_trade_no)">复制</text>
+               </view>
+            </view>
             <text>下单时间：{{ params.order_time }}</text>
          </view>
          <view class="pay-record">
@@ -248,6 +240,10 @@ const payConfirmBtn = () => {
          margin-left: 40rpx;
          box-sizing: border-box;
          line-height: 46rpx;
+         .order-num {
+            display: flex;
+            word-break: break-all;
+         }
          .copy-order-num {
             background-color: #108FEA;
             color: #fff;

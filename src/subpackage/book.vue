@@ -3,7 +3,7 @@ import Back from '@/components/Back.vue'
 import { 
    initBookDetailContent, initNovels, useNovels, isHaveCollectThisBook,
    collectBook, cancelCollectBook
-} from '@/hooks'
+} from '@/hooks/novel'
 import { encryptData, decryptData, getWindowHeight } from '@/utils'
 import { BookType } from '@/type'
 

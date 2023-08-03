@@ -24,18 +24,6 @@
 			"style": {
 				"navigationBarTitleText": "我的"
 			}
-		},
-		{
-			"path": "pages/novel/novel",
-			"style": {
-				"navigationBarTitleText": "小说"
-			}
-		},
-		{
-			"path": "pages/comic/comic",
-			"style": {
-				"navigationBarTitleText": "漫画"
-			}
 		}
 	],
 	"globalStyle": {
@@ -104,6 +92,12 @@
 					}
 				},
 				{
+					"path": "novel",
+					"style": {
+						"navigationBarTitleText": "小说列表"
+					}
+				},
+				{
 					"path": "payment",
 					"style": {
 						"navigationBarTitleText": "支付页面"
@@ -140,6 +134,12 @@
 					}
 				},
 				{
+					"path": "comic",
+					"style": {
+						"navigationBarTitleText": "漫画列表"
+					}
+				},
+				{
 					"path": "comic-open",
 					"style": {
 						"navigationBarTitleText": "查看漫画"
@@ -149,6 +149,18 @@
 					"path": "comic-detail",
 					"style": {
 						"navigationBarTitleText": "comic-detail"
+					}
+				},
+				{
+					"path": "pay-order",
+					"style": {
+						"navigationBarTitleText": "pay-order"
+					}
+				},
+				{
+					"path": "order-list",
+					"style": {
+						"navigationBarTitleText": "order-list"
 					}
 				}
 			]

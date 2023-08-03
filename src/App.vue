@@ -2,8 +2,8 @@
 // 禁用h5端长按[右键]菜单弹出
 //#ifdef H5
 document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
+  e.preventDefault()
+})
 //#endif
 
 </script>
