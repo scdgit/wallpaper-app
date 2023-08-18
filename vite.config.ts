@@ -40,17 +40,17 @@ export default defineConfig({
    server: {
       proxy: {
          '/imgapi': {
-            target: 'http://x006.b.u8s.ru',
+            target: 'http://xxxx.ru',
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/imgapi/, '')
          },
          '/expansion1': {
-            target: 'https://api.gmit.vip',
+            target: 'https://xxxx.vip',
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/expansion1/, '')
          },
          '/api': {
-            target: 'http://127.0.0.1:8000',
+            target: 'http://127.0.0.1:5000',
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/api/, '')
          },
