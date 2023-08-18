@@ -144,7 +144,7 @@ export const registerApi = (uname: string, password: string, email: string) => {
 export const comicMainJsonApi = () => {
    let url = ''
    if (useDeviceType === 'web') url = `${WEB_IMG_API}/img/comic/comic.json`
-   else url = 'http://x006.b.u8s.ru/img/comic/comic.json'
+   else url = 'http://xxxx.com/img/comic/comic.json'
    return uni.request({ url: url })
 }
 
