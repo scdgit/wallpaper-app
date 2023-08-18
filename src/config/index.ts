@@ -1,7 +1,7 @@
 // 图片仓库基础地址
-export const BASE_URL = 'http://x006.b.u8s.ru/img'
+export const BASE_URL = 'http://xxx.com/img'
 // 数据json文件基础地址
-export const JSON_URL = 'https://wallpaper-all.oss-cn-hangzhou.aliyuncs.com'
+export const JSON_URL = 'https:/xxxx.com'
 // crypto-js 加密的秘钥
 export const KEY = 'scd-key'
 // 主机
@@ -17,4 +17,4 @@ export const PROXY_API = '/imgapi'
 // 通知文本
 export const NOTICE_TEXT = '我的-充值中心充值/完成预览任务-获得更多积分-每日登陆可免费领取2点积分'
 // 漫画更目录
-export const COLUMN_BASE_URL = 'http://x006.b.u8s.ru/img/comic'
+export const COLUMN_BASE_URL = 'http://xxxx.com/img/comic'
