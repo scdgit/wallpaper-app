@@ -103,7 +103,7 @@ let frag1 = false
 export function saveImgToAlbum(url: string): Promise<object> {
    if (frag1 === true) return
    if (uni.getStorageSync('deviceType') === 'web') {
-      url = url.replace('http://x006.b.u8s.ru', WEB_IMG_API)
+      url = url.replace('http://xxxxx.ru', WEB_IMG_API)
       const aLink = document.createElement('a')
       aLink.href = url
       aLink.download = url.slice(url.lastIndexOf('/') + 1)
@@ -233,7 +233,7 @@ export const getUrl = (path: string): string => {
    if (useDeviceType === 'web') {
       url = `${WEB_IMG_API}/img${path}`
    } else {
-      url = `http://x006.b.u8s.ru/img${path}`
+      url = `http://xxxxx/img${path}`
    }
    return url
 }
